@@ -1,0 +1,41 @@
+﻿@model MusicBoxManagement.Models.EditRoomTypeViewModel
+@{
+    ViewBag.Title = "Sửa loại phòng";
+}
+
+<h2>Sửa loại phòng: @Model.Code</h2>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.RoomTypeId)
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="mb-3">
+        @Html.LabelFor(model => model.Name, new { @class = "form-label" })
+        @Html.TextBoxFor(model => model.Name, new { @class = "form-control" })
+        @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+    </div>
+    <div class="mb-3">
+        @Html.LabelFor(model => model.Capacity, new { @class = "form-label" })
+        @Html.TextBoxFor(model => model.Capacity, new { @class = "form-control", type = "number", min = "1" })
+        @Html.ValidationMessageFor(model => model.Capacity, "", new { @class = "text-danger" })
+    </div>
+    <div class="mb-3">
+        @Html.LabelFor(model => model.PricePerHour, new { @class = "form-label" })
+        @Html.TextBoxFor(model => model.PricePerHour, "{0:0}", new { @class = "form-control", type = "number", min = "1", step = "1" })
+        @Html.ValidationMessageFor(model => model.PricePerHour, "", new { @class = "text-danger" })
+    </div>
+    <div class="mb-3">
+        @Html.LabelFor(model => model.Amenities, new { @class = "form-label" })
+        @Html.TextAreaFor(model => model.Amenities, new { @class = "form-control", rows = "3" })
+        @Html.ValidationMessageFor(model => model.Amenities, "", new { @class = "text-danger" })
+    </div>
+    <div class="mb-3">
+        @Html.LabelFor(model => model.Description, new { @class = "form-label" })
+        @Html.TextAreaFor(model => model.Description, new { @class = "form-control", rows = "3" })
+        @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+    </div>
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-secondary" })
+}
+
+@section Scripts { @Scripts.Render("~/bundles/jqueryval") }

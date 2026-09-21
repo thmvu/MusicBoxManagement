@@ -1,0 +1,31 @@
+﻿@model IEnumerable<MusicBoxManagement.Models.UserListItemViewModel>
+@{
+    ViewBag.Title = "Tài khoản nội bộ";
+}
+
+<h2>Tài khoản nội bộ</h2>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+<p>@Html.ActionLink("Tạo tài khoản", "Create", null, new { @class = "btn btn-primary" })</p>
+<table class="table table-striped">
+    <thead>
+        <tr><th>Tên đăng nhập</th><th>Họ tên</th><th>Vai trò</th><th>Trạng thái</th><th></th></tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.UserName</td>
+                <td>@user.FullName</td>
+                <td>@(string.IsNullOrEmpty(user.Role) ? "Chưa gán" : user.Role)</td>
+                <td>@(user.IsActive ? "Hoạt động" : "Đã khóa")</td>
+                <td>
+                    @Html.ActionLink("Sửa", "Edit", new { id = user.Id }) |
+                    @Html.ActionLink("Đặt lại mật khẩu", "ResetPassword", new { id = user.Id })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

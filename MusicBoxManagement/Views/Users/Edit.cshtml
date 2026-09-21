@@ -1,0 +1,30 @@
+﻿@model MusicBoxManagement.Models.EditUserViewModel
+@{
+    ViewBag.Title = "Sửa tài khoản";
+}
+
+<h2>Sửa tài khoản: @Model.UserName</h2>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Id)
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="mb-3">
+        @Html.LabelFor(m => m.FullName, new { @class = "form-label" })
+        @Html.TextBoxFor(m => m.FullName, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger" })
+    </div>
+    <div class="mb-3">
+        @Html.LabelFor(m => m.Role, new { @class = "form-label" })
+        @Html.DropDownListFor(m => m.Role, (SelectList)ViewBag.Roles, "Chọn vai trò", new { @class = "form-select" })
+        @Html.ValidationMessageFor(m => m.Role, "", new { @class = "text-danger" })
+    </div>
+    <div class="mb-3 form-check">
+        @Html.CheckBoxFor(m => m.IsActive, new { @class = "form-check-input" })
+        @Html.LabelFor(m => m.IsActive, new { @class = "form-check-label" })
+    </div>
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-secondary" })
+}
+
+@section Scripts { @Scripts.Render("~/bundles/jqueryval") }

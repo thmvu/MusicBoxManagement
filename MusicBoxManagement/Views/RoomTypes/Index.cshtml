@@ -1,0 +1,28 @@
+﻿@model IEnumerable<MusicBoxManagement.Models.RoomType>
+@{
+    ViewBag.Title = "Loại phòng";
+}
+
+<h2>Loại phòng</h2>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+<table class="table table-striped">
+    <thead>
+        <tr><th>Mã</th><th>Tên</th><th>Sức chứa</th><th>Giá theo giờ</th><th>Tiện ích</th><th></th></tr>
+    </thead>
+    <tbody>
+        @foreach (var roomType in Model)
+        {
+            <tr>
+                <td>@roomType.Code</td>
+                <td>@roomType.Name</td>
+                <td>@roomType.Capacity</td>
+                <td>@roomType.PricePerHour.ToString("N0") đ</td>
+                <td>@roomType.Amenities</td>
+                <td>@Html.ActionLink("Sửa", "Edit", new { id = roomType.RoomTypeId })</td>
+            </tr>
+        }
+    </tbody>
+</table>
