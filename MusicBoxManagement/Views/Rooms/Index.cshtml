@@ -1,0 +1,29 @@
+﻿@model IEnumerable<MusicBoxManagement.Models.RoomListViewModel>
+@{
+    ViewBag.Title = "Phòng";
+}
+
+<h2>Phòng</h2>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+<p>@Html.ActionLink("Thêm phòng", "Create", null, new { @class = "btn btn-primary" })</p>
+<table class="table table-striped">
+    <thead>
+        <tr><th>Ảnh</th><th>Mã phòng</th><th>Tên phòng</th><th>Loại</th><th>Trạng thái</th><th></th></tr>
+    </thead>
+    <tbody>
+        @foreach (var room in Model)
+        {
+            <tr>
+                <td><img src="@Url.Content(room.ImageUrl)" alt="Ảnh phòng @room.RoomCode" width="96" /></td>
+                <td>@room.RoomCode</td>
+                <td>@room.Name</td>
+                <td>@room.RoomTypeName</td>
+                <td>@(room.IsActive ? "Hoạt động" : "Đã khóa")</td>
+                <td>@Html.ActionLink("Sửa", "Edit", new { id = room.RoomId })</td>
+            </tr>
+        }
+    </tbody>
+</table>

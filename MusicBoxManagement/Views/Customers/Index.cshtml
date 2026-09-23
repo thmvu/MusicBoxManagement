@@ -1,0 +1,39 @@
+﻿@model IEnumerable<MusicBoxManagement.Models.Customer>
+@{
+    ViewBag.Title = "Khách hàng";
+}
+
+<h2>Khách hàng</h2>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+<div class="d-flex gap-2 mb-3">
+    @using (Html.BeginForm("Index", "Customers", FormMethod.Get, new { @class = "d-flex gap-2" }))
+    {
+        <input type="search" name="search" value="@ViewBag.Search" class="form-control" placeholder="Tìm theo tên hoặc số điện thoại" aria-label="Tìm khách hàng" />
+        <button type="submit" class="btn btn-outline-primary">Tìm</button>
+    }
+    @if (ViewBag.CanCreate == true)
+    {
+        @Html.ActionLink("Thêm khách hàng", "Create", null, new { @class = "btn btn-primary" })
+    }
+</div>
+<table class="table table-striped">
+    <thead><tr><th>Họ tên</th><th>Số điện thoại</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var customer in Model)
+        {
+            <tr>
+                <td>@customer.FullName</td>
+                <td>@customer.PhoneNumber</td>
+                <td>
+                    @if (ViewBag.CanEdit == true)
+                    {
+                        @Html.ActionLink("Sửa", "Edit", new { id = customer.CustomerId })
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

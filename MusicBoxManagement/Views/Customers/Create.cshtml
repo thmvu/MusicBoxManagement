@@ -1,0 +1,30 @@
+﻿@model MusicBoxManagement.Models.CustomerFormViewModel
+@{
+    ViewBag.Title = "Thêm khách hàng";
+}
+
+<h2>Thêm khách hàng</h2>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="mb-3">
+        @Html.LabelFor(model => model.FullName, new { @class = "form-label" })
+        @Html.TextBoxFor(model => model.FullName, new { @class = "form-control" })
+        @Html.ValidationMessageFor(model => model.FullName, "", new { @class = "text-danger" })
+    </div>
+    <div class="mb-3">
+        @Html.LabelFor(model => model.PhoneNumber, new { @class = "form-label" })
+        @Html.TextBoxFor(model => model.PhoneNumber, new { @class = "form-control", type = "tel" })
+        @Html.ValidationMessageFor(model => model.PhoneNumber, "", new { @class = "text-danger" })
+        <small class="form-text">Có thể nhập 0..., 84... hoặc +84...; hệ thống lưu dạng 0xxxxxxxxx.</small>
+    </div>
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-secondary" })
+}
+
+@section Scripts { @Scripts.Render("~/bundles/jqueryval") }

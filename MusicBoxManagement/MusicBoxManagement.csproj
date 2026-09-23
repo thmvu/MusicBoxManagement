@@ -169,24 +169,33 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\CustomersController.cs" />
     <Compile Include="Authorization\PermissionAuthorizeAttribute.cs" />
     <Compile Include="Services\PermissionService.cs" />
     <Compile Include="Services\UserManagementService.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\RoomTypesController.cs" />
+    <Compile Include="Controllers\RoomsController.cs" />
     <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AuditLog.cs" />
+    <Compile Include="Models\Customer.cs" />
+    <Compile Include="Models\CustomerViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\Permission.cs" />
     <Compile Include="Models\RolePermission.cs" />
     <Compile Include="Models\RoomType.cs" />
+    <Compile Include="Models\Room.cs" />
+    <Compile Include="Models\RoomViewModels.cs" />
     <Compile Include="Models\RoomTypeViewModels.cs" />
     <Compile Include="Services\RoomTypeService.cs" />
+    <Compile Include="Services\RoomService.cs" />
+    <Compile Include="Services\CustomerService.cs" />
+    <Compile Include="Services\PhoneNumberNormalizer.cs" />
     <Compile Include="Models\UserManagementViewModels.cs" />
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\202609211315416_AddPermissionRolePermissionAuditLog.cs" />
@@ -196,6 +205,14 @@
     <Compile Include="Migrations\202609211651574_AddRoomType.cs" />
     <Compile Include="Migrations\202609211651574_AddRoomType.Designer.cs">
       <DependentUpon>202609211651574_AddRoomType.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202609211706049_AddRoom.cs" />
+    <Compile Include="Migrations\202609211706049_AddRoom.Designer.cs">
+      <DependentUpon>202609211706049_AddRoom.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202609230356192_AddCustomer.cs" />
+    <Compile Include="Migrations\202609230356192_AddCustomer.Designer.cs">
+      <DependentUpon>202609230356192_AddCustomer.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\202609210920479_AddApplicationUserProfile.cs" />
     <Compile Include="Migrations\202609210920479_AddApplicationUserProfile.Designer.cs">
@@ -286,6 +303,12 @@
     <Content Include="Views\Users\ResetPassword.cshtml" />
     <Content Include="Views\RoomTypes\Index.cshtml" />
     <Content Include="Views\RoomTypes\Edit.cshtml" />
+    <Content Include="Views\Rooms\Index.cshtml" />
+    <Content Include="Views\Rooms\Create.cshtml" />
+    <Content Include="Views\Rooms\Edit.cshtml" />
+    <Content Include="Views\Customers\Index.cshtml" />
+    <Content Include="Views\Customers\Create.cshtml" />
+    <Content Include="Views\Customers\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -370,6 +393,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202609211651574_AddRoomType.resx">
       <DependentUpon>202609211651574_AddRoomType.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202609211706049_AddRoom.resx">
+      <DependentUpon>202609211706049_AddRoom.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202609230356192_AddCustomer.resx">
+      <DependentUpon>202609230356192_AddCustomer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202609210920479_AddApplicationUserProfile.resx">
       <DependentUpon>202609210920479_AddApplicationUserProfile.cs</DependentUpon>

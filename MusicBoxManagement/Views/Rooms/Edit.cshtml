@@ -1,0 +1,41 @@
+﻿@model MusicBoxManagement.Models.RoomFormViewModel
+@{
+    ViewBag.Title = "Sửa phòng";
+}
+
+<h2>Sửa phòng: @Model.RoomCode</h2>
+@using (Html.BeginForm("Edit", "Rooms", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.RoomId)
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="mb-3">
+        @Html.LabelFor(model => model.RoomTypeId, new { @class = "form-label" })
+        @Html.DropDownListFor(model => model.RoomTypeId, (SelectList)ViewBag.RoomTypes, "Chọn loại phòng", new { @class = "form-select" })
+        @Html.ValidationMessageFor(model => model.RoomTypeId, "", new { @class = "text-danger" })
+    </div>
+    <div class="mb-3">
+        @Html.LabelFor(model => model.Name, new { @class = "form-label" })
+        @Html.TextBoxFor(model => model.Name, new { @class = "form-control" })
+        @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+    </div>
+    <div class="mb-3">
+        @Html.LabelFor(model => model.Description, new { @class = "form-label" })
+        @Html.TextAreaFor(model => model.Description, new { @class = "form-control", rows = "3" })
+        @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="Image">Ảnh phòng</label>
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <div><img src="@Url.Content(Model.ImageUrl)" alt="Ảnh phòng @Model.RoomCode" width="180" /></div>
+        }
+        <input type="file" name="Image" id="Image" class="form-control" accept="image/jpeg,image/png,image/webp" />
+        @Html.ValidationMessageFor(model => model.Image, "", new { @class = "text-danger" })
+        <small class="form-text">Để trống nếu giữ ảnh cũ. JPEG, PNG hoặc WebP, tối đa 5 MB.</small>
+    </div>
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-secondary" })
+}
+
+@section Scripts { @Scripts.Render("~/bundles/jqueryval") }

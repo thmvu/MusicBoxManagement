@@ -36,6 +36,14 @@
                             {
                                 <li>@Html.ActionLink("Loại phòng", "Index", "RoomTypes", new { area = "" }, new { @class = "nav-link" })</li>
                             }
+                            if (new PermissionService(db).HasPermission(User.Identity.GetUserId(), "Room.Manage"))
+                            {
+                                <li>@Html.ActionLink("Phòng", "Index", "Rooms", new { area = "" }, new { @class = "nav-link" })</li>
+                            }
+                            if (new PermissionService(db).HasPermission(User.Identity.GetUserId(), "Customer.View"))
+                            {
+                                <li>@Html.ActionLink("Khách hàng", "Index", "Customers", new { area = "" }, new { @class = "nav-link" })</li>
+                            }
                         }
                     }
                 </ul>

@@ -35,6 +35,10 @@ namespace MusicBoxManagement.Models
 
         public DbSet<RoomType> RoomTypes { get; set; }
 
+        public DbSet<Room> Rooms { get; set; }
+
+        public DbSet<Customer> Customers { get; set; }
+
         public ApplicationDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)
         {
@@ -84,6 +88,26 @@ namespace MusicBoxManagement.Models
             modelBuilder.Entity<RoomType>()
                 .Property(roomType => roomType.PricePerHour)
                 .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Room>()
+                .Property(room => room.RoomCode)
+                .IsRequired()
+                .HasMaxLength(30)
+                .HasColumnAnnotation("Index", new System.Data.Entity.Infrastructure.Annotations.IndexAnnotation(
+                    new System.ComponentModel.DataAnnotations.Schema.IndexAttribute("IX_Room_RoomCode") { IsUnique = true }));
+
+            modelBuilder.Entity<Room>()
+                .HasRequired(room => room.RoomType)
+                .WithMany()
+                .HasForeignKey(room => room.RoomTypeId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Customer>()
+                .Property(customer => customer.PhoneNumber)
+                .IsRequired()
+                .HasMaxLength(10)
+                .HasColumnAnnotation("Index", new System.Data.Entity.Infrastructure.Annotations.IndexAnnotation(
+                    new System.ComponentModel.DataAnnotations.Schema.IndexAttribute("IX_Customer_PhoneNumber") { IsUnique = true }));
         }
     }
 }

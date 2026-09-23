@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Room photos are local runtime uploads.
+MusicBoxManagement/Content/uploads/rooms/*
