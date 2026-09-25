@@ -44,6 +44,10 @@
                             {
                                 <li>@Html.ActionLink("Khách hàng", "Index", "Customers", new { area = "" }, new { @class = "nav-link" })</li>
                             }
+                            if (new PermissionService(db).HasPermission(User.Identity.GetUserId(), "Service.Manage"))
+                            {
+                                <li>@Html.ActionLink("Dịch vụ", "Index", "ServiceCatalog", new { area = "" }, new { @class = "nav-link" })</li>
+                            }
                         }
                     }
                 </ul>

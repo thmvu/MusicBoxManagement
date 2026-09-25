@@ -1,0 +1,26 @@
+﻿@model IEnumerable<MusicBoxManagement.Models.Service>
+@{
+    ViewBag.Title = "Dịch vụ";
+}
+
+<h2>Dịch vụ</h2>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+<p>@Html.ActionLink("Thêm dịch vụ", "Create", null, new { @class = "btn btn-primary" })</p>
+<table class="table table-striped">
+    <thead><tr><th>Tên</th><th>Nhóm</th><th>Giá</th><th>Trạng thái</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Category</td>
+                <td>@item.Price.ToString("N0") đ</td>
+                <td>@(item.IsActive ? "Đang bán" : "Ngừng bán")</td>
+                <td>@Html.ActionLink("Sửa", "Edit", new { id = item.ServiceId })</td>
+            </tr>
+        }
+    </tbody>
+</table>

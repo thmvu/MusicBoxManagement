@@ -23,6 +23,17 @@
             SeedRoomType(context, "VIP", "VIP", 6, 200000, "TV lớn, Điều hòa, 4 micro, Loa cao cấp, Đèn LED, Sofa");
             context.SaveChanges();
 
+            // Demo catalog is inserted once; later Manager edits are never overwritten.
+            if (!context.Services.Any())
+            {
+                context.Services.Add(new Service { Name = "Coca", Category = "Đồ uống", Price = 20000m, IsActive = true });
+                context.Services.Add(new Service { Name = "Trà đào", Category = "Đồ uống", Price = 30000m, IsActive = true });
+                context.Services.Add(new Service { Name = "Nước suối", Category = "Đồ uống", Price = 10000m, IsActive = true });
+                context.Services.Add(new Service { Name = "Snack", Category = "Đồ ăn", Price = 25000m, IsActive = true });
+                context.Services.Add(new Service { Name = "Mì", Category = "Đồ ăn", Price = 35000m, IsActive = true });
+                context.SaveChanges();
+            }
+
             var roles = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
             var newRoles = new System.Collections.Generic.HashSet<string>();
             foreach (var name in new[] { "Staff", "Manager", "Admin" })

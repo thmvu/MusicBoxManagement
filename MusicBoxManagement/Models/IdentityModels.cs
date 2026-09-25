@@ -39,6 +39,8 @@ namespace MusicBoxManagement.Models
 
         public DbSet<Customer> Customers { get; set; }
 
+        public DbSet<Service> Services { get; set; }
+
         public ApplicationDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)
         {
@@ -108,6 +110,10 @@ namespace MusicBoxManagement.Models
                 .HasMaxLength(10)
                 .HasColumnAnnotation("Index", new System.Data.Entity.Infrastructure.Annotations.IndexAnnotation(
                     new System.ComponentModel.DataAnnotations.Schema.IndexAttribute("IX_Customer_PhoneNumber") { IsUnique = true }));
+
+            modelBuilder.Entity<Service>()
+                .Property(service => service.Price)
+                .HasPrecision(18, 2);
         }
     }
 }

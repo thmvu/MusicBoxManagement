@@ -170,6 +170,7 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\CustomersController.cs" />
+    <Compile Include="Controllers\ServiceCatalogController.cs" />
     <Compile Include="Authorization\PermissionAuthorizeAttribute.cs" />
     <Compile Include="Services\PermissionService.cs" />
     <Compile Include="Services\UserManagementService.cs" />
@@ -185,6 +186,8 @@
     <Compile Include="Models\AuditLog.cs" />
     <Compile Include="Models\Customer.cs" />
     <Compile Include="Models\CustomerViewModels.cs" />
+    <Compile Include="Models\Service.cs" />
+    <Compile Include="Models\ServiceViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\Permission.cs" />
     <Compile Include="Models\RolePermission.cs" />
@@ -196,6 +199,7 @@
     <Compile Include="Services\RoomService.cs" />
     <Compile Include="Services\CustomerService.cs" />
     <Compile Include="Services\PhoneNumberNormalizer.cs" />
+    <Compile Include="Services\ServiceManagementService.cs" />
     <Compile Include="Models\UserManagementViewModels.cs" />
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\202609211315416_AddPermissionRolePermissionAuditLog.cs" />
@@ -213,6 +217,10 @@
     <Compile Include="Migrations\202609230356192_AddCustomer.cs" />
     <Compile Include="Migrations\202609230356192_AddCustomer.Designer.cs">
       <DependentUpon>202609230356192_AddCustomer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202609250611004_AddService.cs" />
+    <Compile Include="Migrations\202609250611004_AddService.Designer.cs">
+      <DependentUpon>202609250611004_AddService.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\202609210920479_AddApplicationUserProfile.cs" />
     <Compile Include="Migrations\202609210920479_AddApplicationUserProfile.Designer.cs">
@@ -309,6 +317,9 @@
     <Content Include="Views\Customers\Index.cshtml" />
     <Content Include="Views\Customers\Create.cshtml" />
     <Content Include="Views\Customers\Edit.cshtml" />
+    <Content Include="Views\ServiceCatalog\Index.cshtml" />
+    <Content Include="Views\ServiceCatalog\Create.cshtml" />
+    <Content Include="Views\ServiceCatalog\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -399,6 +410,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202609230356192_AddCustomer.resx">
       <DependentUpon>202609230356192_AddCustomer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202609250611004_AddService.resx">
+      <DependentUpon>202609250611004_AddService.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202609210920479_AddApplicationUserProfile.resx">
       <DependentUpon>202609210920479_AddApplicationUserProfile.cs</DependentUpon>
