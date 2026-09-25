@@ -203,6 +203,7 @@
     <Compile Include="Services\CustomerService.cs" />
     <Compile Include="Services\PhoneNumberNormalizer.cs" />
     <Compile Include="Services\PublicRoomCatalogService.cs" />
+    <Compile Include="Services\BookingTimeRules.cs" />
     <Compile Include="Services\ServiceManagementService.cs" />
     <Compile Include="Models\UserManagementViewModels.cs" />
     <Compile Include="Migrations\Configuration.cs" />
