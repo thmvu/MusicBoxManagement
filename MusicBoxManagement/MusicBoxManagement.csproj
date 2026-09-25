@@ -170,6 +170,7 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\CustomersController.cs" />
+    <Compile Include="Controllers\PublicRoomsController.cs" />
     <Compile Include="Controllers\ServiceCatalogController.cs" />
     <Compile Include="Authorization\PermissionAuthorizeAttribute.cs" />
     <Compile Include="Services\PermissionService.cs" />
@@ -186,6 +187,7 @@
     <Compile Include="Models\AuditLog.cs" />
     <Compile Include="Models\Customer.cs" />
     <Compile Include="Models\CustomerViewModels.cs" />
+    <Compile Include="Models\PublicRoomViewModel.cs" />
     <Compile Include="Models\Service.cs" />
     <Compile Include="Models\ServiceViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
@@ -199,6 +201,7 @@
     <Compile Include="Services\RoomService.cs" />
     <Compile Include="Services\CustomerService.cs" />
     <Compile Include="Services\PhoneNumberNormalizer.cs" />
+    <Compile Include="Services\PublicRoomCatalogService.cs" />
     <Compile Include="Services\ServiceManagementService.cs" />
     <Compile Include="Models\UserManagementViewModels.cs" />
     <Compile Include="Migrations\Configuration.cs" />
@@ -317,6 +320,8 @@
     <Content Include="Views\Customers\Index.cshtml" />
     <Content Include="Views\Customers\Create.cshtml" />
     <Content Include="Views\Customers\Edit.cshtml" />
+    <Content Include="Views\PublicRooms\Index.cshtml" />
+    <Content Include="Views\PublicRooms\Details.cshtml" />
     <Content Include="Views\ServiceCatalog\Index.cshtml" />
     <Content Include="Views\ServiceCatalog\Create.cshtml" />
     <Content Include="Views\ServiceCatalog\Edit.cshtml" />

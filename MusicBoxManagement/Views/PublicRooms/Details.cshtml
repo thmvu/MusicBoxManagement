@@ -1,0 +1,31 @@
+﻿@using System.Globalization
+@model MusicBoxManagement.Models.PublicRoomViewModel
+@{
+    ViewBag.Title = Model.Name;
+    var vietnamese = CultureInfo.GetCultureInfo("vi-VN");
+}
+
+<main class="py-4">
+    <p>@Html.ActionLink("← Danh sách phòng", "Index", "PublicRooms")</p>
+    <div class="row g-4">
+        <div class="col-md-7">
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <img src="@Url.Content(Model.ImageUrl)" class="img-fluid rounded" alt="Ảnh phòng @Model.Name" />
+            }
+        </div>
+        <div class="col-md-5">
+            <p class="text-muted mb-1">@Model.RoomTypeName · @Model.Capacity người</p>
+            <h1>@Model.Name</h1>
+            <p>Mã phòng: @Model.RoomCode</p>
+            <p class="fs-4 fw-bold">@Model.PricePerHour.ToString("N0", vietnamese) đ/giờ</p>
+            <h2 class="h5">Tiện ích</h2>
+            <p>@Model.Amenities</p>
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <h2 class="h5">Mô tả</h2>
+                <p>@Model.Description</p>
+            }
+        </div>
+    </div>
+</main>

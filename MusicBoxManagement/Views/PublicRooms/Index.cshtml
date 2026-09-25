@@ -1,0 +1,40 @@
+﻿@using System.Globalization
+@using System.Linq
+@model IEnumerable<MusicBoxManagement.Models.PublicRoomViewModel>
+@{
+    ViewBag.Title = "Danh sách phòng";
+    var vietnamese = CultureInfo.GetCultureInfo("vi-VN");
+}
+
+<main class="py-4">
+    <h1 class="mb-2">Phòng tại Music Box</h1>
+    <p class="text-muted mb-4">Xem thông tin phòng, tiện ích và giá theo giờ.</p>
+
+    @if (!Model.Any())
+    {
+        <p>Hiện chưa có phòng đang hoạt động.</p>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var room in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <article class="card h-100">
+                        @if (!string.IsNullOrEmpty(room.ImageUrl))
+                        {
+                            <img src="@Url.Content(room.ImageUrl)" class="card-img-top" alt="Ảnh phòng @room.Name" style="height: 210px; object-fit: cover;" />
+                        }
+                        <div class="card-body d-flex flex-column">
+                            <p class="text-muted mb-1">@room.RoomTypeName · @room.Capacity người</p>
+                            <h2 class="h5 card-title">@room.Name</h2>
+                            <p class="card-text">@room.Amenities</p>
+                            <p class="fw-bold mt-auto mb-3">@room.PricePerHour.ToString("N0", vietnamese) đ/giờ</p>
+                            @Html.ActionLink("Xem chi tiết", "Details", new { id = room.RoomId }, new { @class = "btn btn-outline-primary" })
+                        </div>
+                    </article>
+                </div>
+            }
+        </div>
+    }
+</main>
