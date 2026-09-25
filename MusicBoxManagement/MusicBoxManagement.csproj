@@ -208,6 +208,8 @@
     <Compile Include="Services\IClock.cs" />
     <Compile Include="Services\AvailabilityRules.cs" />
     <Compile Include="Services\AvailabilityService.cs" />
+    <Compile Include="Services\ReservationInputRules.cs" />
+    <Compile Include="Services\ReservationService.cs" />
     <Compile Include="Services\ServiceManagementService.cs" />
     <Compile Include="Models\UserManagementViewModels.cs" />
     <Compile Include="Migrations\Configuration.cs" />
