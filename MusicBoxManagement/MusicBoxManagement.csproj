@@ -196,6 +196,7 @@
     <Compile Include="Models\RoomType.cs" />
     <Compile Include="Models\Room.cs" />
     <Compile Include="Models\Reservation.cs" />
+    <Compile Include="Models\RoomSession.cs" />
     <Compile Include="Models\RoomViewModels.cs" />
     <Compile Include="Models\RoomTypeViewModels.cs" />
     <Compile Include="Services\RoomTypeService.cs" />
@@ -230,6 +231,10 @@
     <Compile Include="Migrations\202609250624152_AddReservation.cs" />
     <Compile Include="Migrations\202609250624152_AddReservation.Designer.cs">
       <DependentUpon>202609250624152_AddReservation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202609251400359_AddRoomSession.cs" />
+    <Compile Include="Migrations\202609251400359_AddRoomSession.Designer.cs">
+      <DependentUpon>202609251400359_AddRoomSession.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\202609210920479_AddApplicationUserProfile.cs" />
     <Compile Include="Migrations\202609210920479_AddApplicationUserProfile.Designer.cs">
@@ -427,6 +432,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202609250624152_AddReservation.resx">
       <DependentUpon>202609250624152_AddReservation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202609251400359_AddRoomSession.resx">
+      <DependentUpon>202609251400359_AddRoomSession.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202609210920479_AddApplicationUserProfile.resx">
       <DependentUpon>202609210920479_AddApplicationUserProfile.cs</DependentUpon>
