@@ -41,6 +41,8 @@ namespace MusicBoxManagement.Models
 
         public DbSet<Service> Services { get; set; }
 
+        public DbSet<Reservation> Reservations { get; set; }
+
         public ApplicationDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)
         {
@@ -114,6 +116,24 @@ namespace MusicBoxManagement.Models
             modelBuilder.Entity<Service>()
                 .Property(service => service.Price)
                 .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Reservation>()
+                .HasRequired(reservation => reservation.Customer)
+                .WithMany()
+                .HasForeignKey(reservation => reservation.CustomerId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Reservation>()
+                .HasRequired(reservation => reservation.Room)
+                .WithMany()
+                .HasForeignKey(reservation => reservation.RoomId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Reservation>()
+                .HasOptional(reservation => reservation.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(reservation => reservation.CreatedByUserId)
+                .WillCascadeOnDelete(false);
         }
     }
 }
