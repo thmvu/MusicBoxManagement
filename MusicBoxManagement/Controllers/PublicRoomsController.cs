@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Web.Mvc;
 using MusicBoxManagement.Models;
 using MusicBoxManagement.Services;
@@ -13,18 +14,16 @@ namespace MusicBoxManagement.Controllers
                 return View(new PublicRoomCatalogService(db).List());
         }
 
-        public ActionResult Details(int id)
+        public ActionResult Details(int id, string date)
         {
+            DateTime localDate;
+            if (!TryGetScheduleDate(date, out localDate)) return new HttpStatusCodeResult(400);
             using (var db = new ApplicationDbContext())
             {
                 var room = new PublicRoomCatalogService(db).Get(id);
                 if (room == null) return HttpNotFound();
-                var today = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(7)).ToString("yyyy-MM-dd");
-                return View(new PublicRoomDetailsViewModel
-                {
-                    Room = room,
-                    Booking = new GuestBookingFormViewModel { RoomId = id, BookingDate = today }
-                });
+                var booking = new GuestBookingFormViewModel { RoomId = id, BookingDate = localDate.ToString("yyyy-MM-dd") };
+                return View(BuildDetails(db, room, booking, localDate));
             }
         }
 
@@ -56,7 +55,10 @@ namespace MusicBoxManagement.Controllers
                     }
                 }
 
-                return View("Details", new PublicRoomDetailsViewModel { Room = room, Booking = booking });
+                DateTime localDate;
+                if (!TryGetScheduleDate(booking.BookingDate, out localDate))
+                    localDate = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(7)).Date;
+                return View("Details", BuildDetails(db, room, booking, localDate));
             }
         }
 
@@ -66,6 +68,31 @@ namespace MusicBoxManagement.Controllers
             if (summary == null) return RedirectToAction("Index");
             ViewBag.BookingSummary = summary;
             return View();
+        }
+
+        private static PublicRoomDetailsViewModel BuildDetails(ApplicationDbContext db,
+            PublicRoomViewModel room, GuestBookingFormViewModel booking, DateTime localDate)
+        {
+            return new PublicRoomDetailsViewModel
+            {
+                Room = room,
+                Booking = booking,
+                ScheduleDate = localDate.ToString("yyyy-MM-dd"),
+                ScheduleSlots = new GuestRoomScheduleService(db, new SystemClock()).GetDay(room.RoomId, localDate)
+            };
+        }
+
+        private static bool TryGetScheduleDate(string input, out DateTime localDate)
+        {
+            var today = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(7)).Date;
+            if (string.IsNullOrEmpty(input))
+            {
+                localDate = today;
+                return true;
+            }
+            return DateTime.TryParseExact(input, "yyyy-MM-dd", CultureInfo.InvariantCulture,
+                DateTimeStyles.None, out localDate)
+                && localDate >= today && localDate <= today.AddDays(30);
         }
     }
 }

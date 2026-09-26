@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace MusicBoxManagement.Models
@@ -29,5 +30,9 @@ namespace MusicBoxManagement.Models
         public PublicRoomViewModel Room { get; set; }
 
         public GuestBookingFormViewModel Booking { get; set; }
+
+        public string ScheduleDate { get; set; }
+
+        public IList<GuestScheduleSlot> ScheduleSlots { get; set; }
     }
 }

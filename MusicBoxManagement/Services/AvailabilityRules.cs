@@ -17,8 +17,7 @@ namespace MusicBoxManagement.Services
             if (startUtc == nowUtc && sessionList.Any(session => session.Status == RoomSessionStatuses.Active && session.RoomId == roomId))
                 return "Phòng đang có khách sử dụng.";
 
-            if (HasHeldInterval(bookingList, sessionList, item => item.RoomId == roomId,
-                item => item.RoomId == roomId, startUtc, endUtc, nowUtc))
+            if (IsRoomHeld(roomId, startUtc, endUtc, nowUtc, bookingList, sessionList))
                 return "Phòng đã có lịch trong khoảng giờ này.";
 
             if (!customerId.HasValue) return null;
@@ -31,6 +30,13 @@ namespace MusicBoxManagement.Services
                 return "Khách đã có lịch trong khoảng giờ này.";
 
             return null;
+        }
+
+        public static bool IsRoomHeld(int roomId, DateTimeOffset startUtc, DateTimeOffset endUtc,
+            DateTimeOffset nowUtc, IEnumerable<Reservation> reservations, IEnumerable<RoomSession> sessions)
+        {
+            return HasHeldInterval(reservations, sessions, item => item.RoomId == roomId,
+                item => item.RoomId == roomId, startUtc, endUtc, nowUtc);
         }
 
         private static bool HasHeldInterval(IEnumerable<Reservation> reservations, IEnumerable<RoomSession> sessions,

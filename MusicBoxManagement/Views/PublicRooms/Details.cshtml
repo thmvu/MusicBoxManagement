@@ -49,6 +49,36 @@
         </div>
     </div>
 
+    <section class="card mt-4" aria-labelledby="schedule-title">
+        <div class="card-body">
+            <h2 id="schedule-title" class="h4">Lịch phòng theo ngày</h2>
+            @using (Html.BeginForm("Details", "PublicRooms", FormMethod.Get, new { @class = "row g-2 align-items-end mb-3" }))
+            {
+                <input type="hidden" name="id" value="@room.RoomId" />
+                <div class="col-sm-auto">
+                    <label for="schedule-date" class="form-label">Ngày xem lịch</label>
+                    <input id="schedule-date" name="date" type="date" class="form-control" value="@Model.ScheduleDate" min="@localToday.ToString("yyyy-MM-dd")" max="@localToday.AddDays(30).ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-sm-auto"><button type="submit" class="btn btn-outline-primary">Xem lịch</button></div>
+            }
+            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-2">
+                @foreach (var slot in Model.ScheduleSlots)
+                {
+                    var color = slot.Status == "Busy" ? "border-danger text-danger"
+                        : slot.Status == "Past" ? "bg-light text-muted" : "border-success text-success";
+                    var label = slot.Status == "Busy" ? "Bận" : slot.Status == "Past" ? "Đã qua" : "Trống";
+                    <div class="col">
+                        <div class="border rounded p-2 h-100 @color">
+                            <div>@slot.LocalStartLabel–@slot.LocalEndLabel</div>
+                            <strong>@label</strong>
+                        </div>
+                    </div>
+                }
+            </div>
+            <p class="small text-muted mt-3 mb-0">Nghỉ giữa ca 12:00–13:00. Mỗi ô là 30 phút; giờ trống chỉ mang tính tham khảo. Khi gửi đặt phòng, hệ thống kiểm tra lại cả thời lượng đã chọn và lịch của khách.</p>
+        </div>
+    </section>
+
     <section class="card mt-4" aria-labelledby="booking-title">
         <div class="card-body">
             <h2 id="booking-title" class="h4">Đặt trước phòng này</h2>
