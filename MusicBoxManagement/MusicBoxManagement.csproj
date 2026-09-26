@@ -213,6 +213,8 @@
     <Compile Include="Services\AvailabilityService.cs" />
     <Compile Include="Services\ReservationInputRules.cs" />
     <Compile Include="Services\ReservationService.cs" />
+    <Compile Include="Services\NoShowService.cs" />
+    <Compile Include="Services\NoShowBackgroundWorker.cs" />
     <Compile Include="Services\GuestBookingDateParser.cs" />
     <Compile Include="Services\GuestRoomScheduleRules.cs" />
     <Compile Include="Services\GuestRoomScheduleService.cs" />

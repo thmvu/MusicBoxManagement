@@ -20,6 +20,7 @@ namespace MusicBoxManagement.Controllers
             if (model == null) return new HttpStatusCodeResult(400);
             using (var db = new ApplicationDbContext())
             {
+                new NoShowService(db, new SystemClock()).ProcessExpired();
                 var result = new ReservationService(db, new SystemClock()).LookupGuest(model.PhoneNumber);
                 if (!result.IsValid)
                     ModelState.AddModelError("PhoneNumber", "Số điện thoại không hợp lệ.");

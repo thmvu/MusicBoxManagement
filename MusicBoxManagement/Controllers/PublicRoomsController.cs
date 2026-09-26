@@ -11,7 +11,10 @@ namespace MusicBoxManagement.Controllers
         public ActionResult Index()
         {
             using (var db = new ApplicationDbContext())
+            {
+                new NoShowService(db, new SystemClock()).ProcessExpired();
                 return View(new PublicRoomCatalogService(db).List());
+            }
         }
 
         public ActionResult Details(int id, string date)
@@ -20,6 +23,7 @@ namespace MusicBoxManagement.Controllers
             if (!TryGetScheduleDate(date, out localDate)) return new HttpStatusCodeResult(400);
             using (var db = new ApplicationDbContext())
             {
+                new NoShowService(db, new SystemClock()).ProcessExpired();
                 var room = new PublicRoomCatalogService(db).Get(id);
                 if (room == null) return HttpNotFound();
                 var booking = new GuestBookingFormViewModel { RoomId = id, BookingDate = localDate.ToString("yyyy-MM-dd") };
@@ -33,6 +37,7 @@ namespace MusicBoxManagement.Controllers
             if (booking == null) return new HttpStatusCodeResult(400);
             using (var db = new ApplicationDbContext())
             {
+                new NoShowService(db, new SystemClock()).ProcessExpired();
                 var room = new PublicRoomCatalogService(db).Get(booking.RoomId);
                 if (room == null) return HttpNotFound();
 
