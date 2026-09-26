@@ -188,6 +188,7 @@
     <Compile Include="Models\Customer.cs" />
     <Compile Include="Models\CustomerViewModels.cs" />
     <Compile Include="Models\PublicRoomViewModel.cs" />
+    <Compile Include="Models\GuestBookingViewModels.cs" />
     <Compile Include="Models\Service.cs" />
     <Compile Include="Models\ServiceViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
@@ -210,6 +211,7 @@
     <Compile Include="Services\AvailabilityService.cs" />
     <Compile Include="Services\ReservationInputRules.cs" />
     <Compile Include="Services\ReservationService.cs" />
+    <Compile Include="Services\GuestBookingDateParser.cs" />
     <Compile Include="Services\ServiceManagementService.cs" />
     <Compile Include="Models\UserManagementViewModels.cs" />
     <Compile Include="Migrations\Configuration.cs" />
@@ -338,6 +340,7 @@
     <Content Include="Views\Customers\Edit.cshtml" />
     <Content Include="Views\PublicRooms\Index.cshtml" />
     <Content Include="Views\PublicRooms\Details.cshtml" />
+    <Content Include="Views\PublicRooms\BookingSuccess.cshtml" />
     <Content Include="Views\ServiceCatalog\Index.cshtml" />
     <Content Include="Views\ServiceCatalog\Create.cshtml" />
     <Content Include="Views\ServiceCatalog\Edit.cshtml" />

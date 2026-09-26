@@ -1,31 +1,95 @@
 ﻿@using System.Globalization
-@model MusicBoxManagement.Models.PublicRoomViewModel
+@using System.Collections.Generic
+@using System.Web.Mvc
+@model MusicBoxManagement.Models.PublicRoomDetailsViewModel
 @{
-    ViewBag.Title = Model.Name;
+    ViewBag.Title = Model.Room.Name;
     var vietnamese = CultureInfo.GetCultureInfo("vi-VN");
+    var room = Model.Room;
+    var localToday = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(7)).Date;
+    var slots = new List<string>();
+    for (var minute = 9 * 60; minute <= 11 * 60; minute += 30)
+    {
+        slots.Add(TimeSpan.FromMinutes(minute).ToString(@"hh\:mm"));
+    }
+    for (var minute = 13 * 60; minute <= 22 * 60; minute += 30)
+    {
+        slots.Add(TimeSpan.FromMinutes(minute).ToString(@"hh\:mm"));
+    }
+    var durations = new List<SelectListItem>
+    {
+        new SelectListItem { Value = "60", Text = "60 phút" },
+        new SelectListItem { Value = "90", Text = "90 phút" },
+        new SelectListItem { Value = "120", Text = "120 phút" },
+        new SelectListItem { Value = "180", Text = "180 phút" }
+    };
 }
 
 <main class="py-4">
     <p>@Html.ActionLink("← Danh sách phòng", "Index", "PublicRooms")</p>
     <div class="row g-4">
         <div class="col-md-7">
-            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            @if (!string.IsNullOrEmpty(room.ImageUrl))
             {
-                <img src="@Url.Content(Model.ImageUrl)" class="img-fluid rounded" alt="Ảnh phòng @Model.Name" />
+                <img src="@Url.Content(room.ImageUrl)" class="img-fluid rounded" alt="Ảnh phòng @room.Name" />
             }
         </div>
         <div class="col-md-5">
-            <p class="text-muted mb-1">@Model.RoomTypeName · @Model.Capacity người</p>
-            <h1>@Model.Name</h1>
-            <p>Mã phòng: @Model.RoomCode</p>
-            <p class="fs-4 fw-bold">@Model.PricePerHour.ToString("N0", vietnamese) đ/giờ</p>
+            <p class="text-muted mb-1">@room.RoomTypeName · @room.Capacity người</p>
+            <h1>@room.Name</h1>
+            <p>Mã phòng: @room.RoomCode</p>
+            <p class="fs-4 fw-bold">@room.PricePerHour.ToString("N0", vietnamese) đ/giờ</p>
             <h2 class="h5">Tiện ích</h2>
-            <p>@Model.Amenities</p>
-            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            <p>@room.Amenities</p>
+            @if (!string.IsNullOrWhiteSpace(room.Description))
             {
                 <h2 class="h5">Mô tả</h2>
-                <p>@Model.Description</p>
+                <p>@room.Description</p>
             }
         </div>
     </div>
+
+    <section class="card mt-4" aria-labelledby="booking-title">
+        <div class="card-body">
+            <h2 id="booking-title" class="h4">Đặt trước phòng này</h2>
+            <p class="text-muted">Chọn giờ theo giờ Việt Nam. Hệ thống sẽ kiểm tra lại lịch khi bạn gửi đặt phòng.</p>
+            @using (Html.BeginForm("Book", "PublicRooms", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(model => model.Booking.RoomId)
+                @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        @Html.LabelFor(model => model.Booking.BookingDate, "Ngày sử dụng", new { @class = "form-label" })
+                        @Html.TextBoxFor(model => model.Booking.BookingDate, new { @class = "form-control", type = "date", min = localToday.ToString("yyyy-MM-dd"), max = localToday.AddDays(30).ToString("yyyy-MM-dd") })
+                        @Html.ValidationMessageFor(model => model.Booking.BookingDate, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="col-md-4">
+                        @Html.LabelFor(model => model.Booking.StartSlot, "Giờ bắt đầu", new { @class = "form-label" })
+                        @Html.DropDownListFor(model => model.Booking.StartSlot, new SelectList(slots), "Chọn giờ", new { @class = "form-select" })
+                        @Html.ValidationMessageFor(model => model.Booking.StartSlot, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="col-md-4">
+                        @Html.LabelFor(model => model.Booking.DurationMinutes, "Thời lượng", new { @class = "form-label" })
+                        @Html.DropDownListFor(model => model.Booking.DurationMinutes, durations, "Chọn thời lượng", new { @class = "form-select" })
+                        @Html.ValidationMessageFor(model => model.Booking.DurationMinutes, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="col-md-6">
+                        @Html.LabelFor(model => model.Booking.FullName, "Họ tên", new { @class = "form-label" })
+                        @Html.TextBoxFor(model => model.Booking.FullName, new { @class = "form-control", autocomplete = "name" })
+                        @Html.ValidationMessageFor(model => model.Booking.FullName, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="col-md-6">
+                        @Html.LabelFor(model => model.Booking.PhoneNumber, "Số điện thoại", new { @class = "form-label" })
+                        @Html.TextBoxFor(model => model.Booking.PhoneNumber, new { @class = "form-control", type = "tel", autocomplete = "tel" })
+                        @Html.ValidationMessageFor(model => model.Booking.PhoneNumber, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <p class="small text-muted mt-3">Giá đang hiển thị chỉ để tham khảo. Giá áp dụng được chốt khi nhận phòng.</p>
+                <button type="submit" class="btn btn-primary">Xác nhận đặt phòng</button>
+            }
+        </div>
+    </section>
 </main>
+
+@section Scripts { @Scripts.Render("~/bundles/jqueryval") }

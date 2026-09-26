@@ -1,0 +1,13 @@
+﻿@{
+    ViewBag.Title = "Đặt phòng thành công";
+}
+
+<main class="py-4">
+    <div class="alert alert-success">
+        <h1 class="h3">Đặt phòng thành công</h1>
+        <p class="mb-0">Đặt phòng của bạn đã được xác nhận.</p>
+    </div>
+    <p><strong>Phòng và giờ bắt đầu:</strong> @ViewBag.BookingSummary</p>
+    <p>Vui lòng đến đúng giờ đã chọn. Hiện chưa cần thanh toán trước.</p>
+    @Html.ActionLink("Xem các phòng", "Index", "PublicRooms", null, new { @class = "btn btn-outline-primary" })
+</main>
