@@ -49,6 +49,19 @@ try {
 
     $start = [DateTimeOffset]::UtcNow.AddDays(1)
     $id = New-Reservation $setup $customer.CustomerId $room.RoomId $start
+    $context = New-Context
+    try {
+        $clock = [TestClock]::new(); $clock.UtcNow = $start.AddHours(-3)
+        $service = [MusicBoxManagement.Services.ReservationService]::new($context, $clock)
+        $lookup = $service.LookupGuest('+84 912 345 678')
+        Assert-True $lookup.IsValid 'Normalized phone lookup failed.'
+        Assert-True ($lookup.Bookings.Count -eq 1) 'Expected one live booking.'
+        Assert-True ($lookup.Bookings[0].CanCancel) 'Guest cancel button should be available.'
+        Assert-True ($lookup.Bookings[0].RoomName -eq 'Room 1') 'Room name missing.'
+        Assert-True ($service.LookupGuest('0987654321').Bookings.Count -eq 0) 'Other phone saw booking.'
+        Assert-True (!$service.LookupGuest('abc').IsValid) 'Invalid phone accepted.'
+    }
+    finally { $context.Dispose() }
     $wrongPhone = Cancel-Guest $id '0987654321' ($start.AddHours(-3))
     Assert-True (!$wrongPhone.Succeeded) 'Wrong phone cancelled booking.'
     $tooLate = Cancel-Guest $id '0912345678' ($start.AddHours(-2).AddTicks(1))
@@ -76,6 +89,17 @@ try {
     }
     finally { $context.Dispose() }
     Assert-True (!(Cancel-Guest $staffId '0912345678' ($start.AddHours(2).AddMinutes(15))).Succeeded) 'Expired Confirmed cancelled.'
+    $context = New-Context
+    try {
+        $clock = [TestClock]::new(); $clock.UtcNow = $start.AddHours(2).AddMinutes(14)
+        $lookup = ([MusicBoxManagement.Services.ReservationService]::new($context, $clock)).LookupGuest('0912345678')
+        Assert-True ($lookup.Bookings.Count -eq 1) 'Lookup should hide cancelled booking.'
+        Assert-True (!$lookup.Bookings[0].CanCancel) 'Late booking showed cancel button.'
+        $clock.UtcNow = $start.AddHours(2).AddMinutes(15)
+        $lookup = ([MusicBoxManagement.Services.ReservationService]::new($context, $clock)).LookupGuest('0912345678')
+        Assert-True ($lookup.Bookings.Count -eq 0) 'Expired Confirmed shown in lookup.'
+    }
+    finally { $context.Dispose() }
     $user = [MusicBoxManagement.Models.ApplicationUser]::new()
     $user.Id = [Guid]::NewGuid().ToString('N'); $user.UserName = 'cancel_test_staff'; $user.FullName = 'Test Staff'
     [void]$setup.Users.Add($user); [void]$setup.SaveChanges()

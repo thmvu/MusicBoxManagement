@@ -1,0 +1,69 @@
+@using System.Globalization
+@using System.Linq
+@model MusicBoxManagement.Models.GuestLookupViewModel
+@{
+    ViewBag.Title = "Tra cứu đặt phòng";
+    var vietnamese = CultureInfo.GetCultureInfo("vi-VN");
+    var vietnamOffset = TimeSpan.FromHours(7);
+}
+
+<main class="py-4">
+    <h1 class="mb-2">Tra cứu đặt phòng</h1>
+    <p class="text-muted">Nhập số điện thoại đã dùng khi đặt phòng để xem các booking còn hiệu lực.</p>
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+    @using (Html.BeginForm("Lookup", "GuestBookings", FormMethod.Post, new { @class = "row g-2 align-items-end mb-4" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="col-sm-6 col-md-4">
+            @Html.LabelFor(model => model.PhoneNumber, "Số điện thoại", new { @class = "form-label" })
+            @Html.TextBoxFor(model => model.PhoneNumber, new { @class = "form-control", type = "tel", autocomplete = "tel" })
+            @Html.ValidationMessageFor(model => model.PhoneNumber, "", new { @class = "text-danger" })
+        </div>
+        <div class="col-sm-auto"><button type="submit" class="btn btn-primary">Tra cứu</button></div>
+    }
+
+    @if (Model.HasSearched)
+    {
+        if (!Model.Bookings.Any())
+        {
+            <p>Không có đặt phòng nào còn hiệu lực cho số điện thoại này.</p>
+        }
+        else
+        {
+            <h2 class="h4">Đặt phòng còn hiệu lực</h2>
+            <div class="row g-3">
+                @foreach (var booking in Model.Bookings)
+                {
+                    <div class="col-md-6">
+                        <article class="card h-100"><div class="card-body">
+                            <h3 class="h5">@booking.RoomName</h3>
+                            <p class="mb-1">Từ @booking.StartTime.ToOffset(vietnamOffset).ToString("dd/MM/yyyy HH:mm", vietnamese)
+                                đến @booking.EndTime.ToOffset(vietnamOffset).ToString("HH:mm", vietnamese)</p>
+                            <p class="text-success">Đã xác nhận</p>
+                            @if (booking.CanCancel)
+                            {
+                                using (Html.BeginForm("Cancel", "GuestBookings", FormMethod.Post))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="reservationId" value="@booking.ReservationId" />
+                                    <input type="hidden" name="phoneNumber" value="@Model.PhoneNumber" />
+                                    <button type="submit" class="btn btn-outline-danger">Hủy đặt phòng</button>
+                                }
+                            }
+                            else
+                            {
+                                <p class="mb-0 text-muted">Đã qua hạn hủy online. Vui lòng liên hệ cửa hàng.</p>
+                            }
+                        </div></article>
+                    </div>
+                }
+            </div>
+        }
+    }
+</main>
+
+@section Scripts { @Scripts.Render("~/bundles/jqueryval") }

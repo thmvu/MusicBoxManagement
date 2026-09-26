@@ -171,6 +171,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\CustomersController.cs" />
     <Compile Include="Controllers\PublicRoomsController.cs" />
+    <Compile Include="Controllers\GuestBookingsController.cs" />
     <Compile Include="Controllers\ServiceCatalogController.cs" />
     <Compile Include="Authorization\PermissionAuthorizeAttribute.cs" />
     <Compile Include="Services\PermissionService.cs" />
@@ -344,6 +345,7 @@
     <Content Include="Views\PublicRooms\Index.cshtml" />
     <Content Include="Views\PublicRooms\Details.cshtml" />
     <Content Include="Views\PublicRooms\BookingSuccess.cshtml" />
+    <Content Include="Views\GuestBookings\Index.cshtml" />
     <Content Include="Views\ServiceCatalog\Index.cshtml" />
     <Content Include="Views\ServiceCatalog\Create.cshtml" />
     <Content Include="Views\ServiceCatalog\Edit.cshtml" />

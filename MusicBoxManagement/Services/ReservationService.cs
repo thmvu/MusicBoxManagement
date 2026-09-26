@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Collections.Generic;
 using System.Linq;
 using MusicBoxManagement.Models;
 
@@ -30,6 +31,21 @@ namespace MusicBoxManagement.Services
 
         public static ReservationCancelResult Success() { return new ReservationCancelResult { Succeeded = true }; }
         public static ReservationCancelResult Failure(string error) { return new ReservationCancelResult { Error = error }; }
+    }
+
+    public sealed class GuestBookingSummary
+    {
+        public int ReservationId { get; set; }
+        public string RoomName { get; set; }
+        public DateTimeOffset StartTime { get; set; }
+        public DateTimeOffset EndTime { get; set; }
+        public bool CanCancel { get; set; }
+    }
+
+    public sealed class GuestLookupResult
+    {
+        public bool IsValid { get; set; }
+        public IList<GuestBookingSummary> Bookings { get; set; }
     }
 
     public sealed class ReservationService
@@ -116,6 +132,31 @@ namespace MusicBoxManagement.Services
                 return ReservationCancelResult.Failure("Số điện thoại không hợp lệ.");
 
             return Cancel(reservationId, normalizedPhone, null, null);
+        }
+
+        public GuestLookupResult LookupGuest(string phoneNumber)
+        {
+            string normalizedPhone;
+            if (!PhoneNumberNormalizer.TryNormalize(phoneNumber, out normalizedPhone))
+                return new GuestLookupResult { Bookings = new List<GuestBookingSummary>() };
+
+            var now = clock.UtcNow;
+            var earliestStart = now.AddMinutes(-15);
+            var bookings = db.Reservations
+                .Where(item => item.Customer.PhoneNumber == normalizedPhone &&
+                    item.Status == ReservationStatuses.Confirmed && item.StartTime > earliestStart)
+                .OrderBy(item => item.StartTime)
+                .Select(item => new { item.ReservationId, item.Room.Name, item.StartTime, item.EndTime })
+                .ToList()
+                .Select(item => new GuestBookingSummary
+                {
+                    ReservationId = item.ReservationId,
+                    RoomName = item.Name,
+                    StartTime = item.StartTime,
+                    EndTime = item.EndTime,
+                    CanCancel = now <= item.StartTime.AddHours(-2)
+                }).ToList();
+            return new GuestLookupResult { IsValid = true, Bookings = bookings };
         }
 
         public ReservationCancelResult CancelByStaff(int reservationId, string reason, string userId)

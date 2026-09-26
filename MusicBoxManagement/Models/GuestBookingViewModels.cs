@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using MusicBoxManagement.Services;
 
 namespace MusicBoxManagement.Models
 {
@@ -34,5 +35,15 @@ namespace MusicBoxManagement.Models
         public string ScheduleDate { get; set; }
 
         public IList<GuestScheduleSlot> ScheduleSlots { get; set; }
+    }
+
+    public class GuestLookupViewModel
+    {
+        [Required(ErrorMessage = "Vui lòng nhập số điện thoại.")]
+        public string PhoneNumber { get; set; }
+
+        public bool HasSearched { get; set; }
+
+        public IList<GuestBookingSummary> Bookings { get; set; } = new List<GuestBookingSummary>();
     }
 }

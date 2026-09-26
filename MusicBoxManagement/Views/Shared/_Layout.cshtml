@@ -22,6 +22,7 @@
             <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
                     <li>@Html.ActionLink("Xem phòng", "Index", "PublicRooms", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Tra cứu đặt phòng", "Index", "GuestBookings", new { area = "" }, new { @class = "nav-link" })</li>
                     @if (Request.IsAuthenticated)
                     {
                         using (var db = new ApplicationDbContext())
