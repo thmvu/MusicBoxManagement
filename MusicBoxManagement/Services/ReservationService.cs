@@ -23,6 +23,15 @@ namespace MusicBoxManagement.Services
         }
     }
 
+    public sealed class ReservationCancelResult
+    {
+        public bool Succeeded { get; private set; }
+        public string Error { get; private set; }
+
+        public static ReservationCancelResult Success() { return new ReservationCancelResult { Succeeded = true }; }
+        public static ReservationCancelResult Failure(string error) { return new ReservationCancelResult { Error = error }; }
+    }
+
     public sealed class ReservationService
     {
         private readonly ApplicationDbContext db;
@@ -97,6 +106,68 @@ namespace MusicBoxManagement.Services
             {
                 if (!IsConcurrentChange(exception)) throw;
                 return ReservationCreateResult.Failure("Dữ liệu vừa thay đổi. Vui lòng kiểm tra lịch và thử lại.");
+            }
+        }
+
+        public ReservationCancelResult CancelGuest(int reservationId, string phoneNumber)
+        {
+            string normalizedPhone;
+            if (!PhoneNumberNormalizer.TryNormalize(phoneNumber, out normalizedPhone))
+                return ReservationCancelResult.Failure("Số điện thoại không hợp lệ.");
+
+            return Cancel(reservationId, normalizedPhone, null, null);
+        }
+
+        public ReservationCancelResult CancelByStaff(int reservationId, string reason, string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                return ReservationCancelResult.Failure("Thiếu nhân viên thực hiện.");
+            if (string.IsNullOrWhiteSpace(reason) || reason.Trim().Length > 500)
+                return ReservationCancelResult.Failure("Vui lòng nhập lý do hủy (tối đa 500 ký tự).");
+
+            return Cancel(reservationId, null, reason.Trim(), userId);
+        }
+
+        private ReservationCancelResult Cancel(int reservationId, string guestPhone, string staffReason, string userId)
+        {
+            try
+            {
+                using (var transaction = db.Database.BeginTransaction(IsolationLevel.Serializable))
+                {
+                    var reservation = db.Reservations.Include("Customer")
+                        .SingleOrDefault(item => item.ReservationId == reservationId);
+                    if (reservation == null || (guestPhone != null && reservation.Customer.PhoneNumber != guestPhone))
+                        return ReservationCancelResult.Failure("Không tìm thấy đặt phòng phù hợp.");
+
+                    var now = clock.UtcNow;
+                    if (reservation.Status != ReservationStatuses.Confirmed ||
+                        now >= reservation.StartTime.AddMinutes(15))
+                        return ReservationCancelResult.Failure("Đặt phòng không còn hiệu lực để hủy.");
+                    if (guestPhone != null && now > reservation.StartTime.AddHours(-2))
+                        return ReservationCancelResult.Failure("Đã quá thời hạn hủy online. Vui lòng liên hệ cửa hàng.");
+
+                    reservation.Status = ReservationStatuses.Cancelled;
+                    reservation.CancellationReason = guestPhone != null
+                        ? "Customer cancelled online" : staffReason;
+                    db.AuditLogs.Add(new AuditLog
+                    {
+                        ActorType = guestPhone != null ? "Guest" : "Staff",
+                        UserId = userId,
+                        Action = "Cancel",
+                        EntityName = "Reservation",
+                        EntityId = reservation.ReservationId.ToString(),
+                        Description = reservation.CancellationReason,
+                        CreatedAt = now
+                    });
+                    db.SaveChanges();
+                    transaction.Commit();
+                    return ReservationCancelResult.Success();
+                }
+            }
+            catch (Exception exception)
+            {
+                if (!IsConcurrentChange(exception)) throw;
+                return ReservationCancelResult.Failure("Dữ liệu vừa thay đổi. Vui lòng thử lại.");
             }
         }
 
