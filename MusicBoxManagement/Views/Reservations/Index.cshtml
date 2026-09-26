@@ -1,0 +1,52 @@
+@using System.Globalization
+@using System.Linq
+@model MusicBoxManagement.Models.ReservationListViewModel
+@{
+    ViewBag.Title = "Đặt phòng";
+    var offset = TimeSpan.FromHours(7);
+    var vietnamese = CultureInfo.GetCultureInfo("vi-VN");
+}
+
+<main class="py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">Đặt phòng theo ngày</h1>
+        @if (ViewBag.CanCreate == true)
+        {
+            @Html.ActionLink("Tạo đặt phòng", "Create", "Reservations", null, new { @class = "btn btn-primary" })
+        }
+    </div>
+    @using (Html.BeginForm("Index", "Reservations", FormMethod.Get, new { @class = "row g-2 align-items-end mb-4" }))
+    {
+        <div class="col-sm-auto">
+            <label for="booking-date" class="form-label">Ngày sử dụng</label>
+            <input id="booking-date" name="date" type="date" class="form-control" value="@Model.Date" />
+        </div>
+        <div class="col-sm-auto"><button type="submit" class="btn btn-outline-primary">Xem ngày</button></div>
+    }
+    @if (!Model.Items.Any())
+    {
+        <p>Không có đặt phòng trong ngày này.</p>
+    }
+    else
+    {
+        <div class="table-responsive"><table class="table table-striped align-middle">
+            <thead><tr><th>Giờ</th><th>Phòng</th><th>Khách</th><th>Số điện thoại</th><th>Trạng thái</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    var statusLabel = item.Status == "Confirmed" ? "Đã xác nhận"
+                        : item.Status == "CheckedIn" ? "Đã nhận phòng"
+                        : item.Status == "Completed" ? "Hoàn tất"
+                        : item.Status == "Cancelled" ? "Đã hủy"
+                        : item.Status == "NoShow" ? "Không đến" : item.Status;
+                    <tr>
+                        <td>@item.StartTime.ToOffset(offset).ToString("HH:mm", vietnamese)–@item.EndTime.ToOffset(offset).ToString("HH:mm", vietnamese)</td>
+                        <td>@item.RoomName</td><td>@item.CustomerName</td><td>@item.PhoneNumber</td>
+                        <td>@statusLabel</td>
+                        <td>@Html.ActionLink("Chi tiết", "Details", new { id = item.ReservationId })</td>
+                    </tr>
+                }
+            </tbody>
+        </table></div>
+    }
+</main>

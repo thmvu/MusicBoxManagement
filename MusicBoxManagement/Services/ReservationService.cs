@@ -62,6 +62,20 @@ namespace MusicBoxManagement.Services
         public ReservationCreateResult CreateGuest(int roomId, string fullName, string phoneNumber,
             DateTimeOffset startUtc, int durationMinutes)
         {
+            return Create(roomId, fullName, phoneNumber, startUtc, durationMinutes, null);
+        }
+
+        public ReservationCreateResult CreateStaff(int roomId, string fullName, string phoneNumber,
+            DateTimeOffset startUtc, int durationMinutes, string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                return ReservationCreateResult.Failure("Thiếu nhân viên thực hiện.");
+            return Create(roomId, fullName, phoneNumber, startUtc, durationMinutes, userId);
+        }
+
+        private ReservationCreateResult Create(int roomId, string fullName, string phoneNumber,
+            DateTimeOffset startUtc, int durationMinutes, string userId)
+        {
             var input = ReservationInputRules.Validate(fullName, phoneNumber);
             if (!input.IsValid) return ReservationCreateResult.Failure(input.Error);
 
@@ -73,6 +87,8 @@ namespace MusicBoxManagement.Services
             {
                 using (var transaction = db.Database.BeginTransaction(IsolationLevel.Serializable))
                 {
+                    if (userId != null && !db.Users.Any(user => user.Id == userId && user.IsActive))
+                        return ReservationCreateResult.Failure("Nhân viên không còn hoạt động.");
                     var customer = db.Customers.SingleOrDefault(item => item.PhoneNumber == input.PhoneNumber);
                     if (customer == null)
                     {
@@ -99,6 +115,7 @@ namespace MusicBoxManagement.Services
                         StartTime = startUtc,
                         EndTime = availability.EndTimeUtc,
                         Status = ReservationStatuses.Confirmed,
+                        CreatedByUserId = userId,
                         CreatedAt = confirmedNow
                     };
                     db.Reservations.Add(reservation);
@@ -106,7 +123,8 @@ namespace MusicBoxManagement.Services
 
                     db.AuditLogs.Add(new AuditLog
                     {
-                        ActorType = "Guest",
+                        ActorType = userId == null ? "Guest" : "Staff",
+                        UserId = userId,
                         Action = "Create",
                         EntityName = "Reservation",
                         EntityId = reservation.ReservationId.ToString(),
@@ -175,6 +193,8 @@ namespace MusicBoxManagement.Services
             {
                 using (var transaction = db.Database.BeginTransaction(IsolationLevel.Serializable))
                 {
+                    if (userId != null && !db.Users.Any(user => user.Id == userId && user.IsActive))
+                        return ReservationCancelResult.Failure("Nhân viên không còn hoạt động.");
                     var reservation = db.Reservations.Include("Customer")
                         .SingleOrDefault(item => item.ReservationId == reservationId);
                     if (reservation == null || (guestPhone != null && reservation.Customer.PhoneNumber != guestPhone))

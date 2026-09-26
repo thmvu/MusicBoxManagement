@@ -1,0 +1,70 @@
+@using System.Collections.Generic
+@using System.Web.Mvc
+@model MusicBoxManagement.Models.GuestBookingFormViewModel
+@{
+    ViewBag.Title = "Tạo đặt phòng";
+    var slots = new List<string>();
+    for (var minute = 9 * 60; minute <= 11 * 60; minute += 30)
+    {
+        slots.Add(TimeSpan.FromMinutes(minute).ToString(@"hh\:mm"));
+    }
+    for (var minute = 13 * 60; minute <= 22 * 60; minute += 30)
+    {
+        slots.Add(TimeSpan.FromMinutes(minute).ToString(@"hh\:mm"));
+    }
+    var durations = new List<SelectListItem>
+    {
+        new SelectListItem { Value = "60", Text = "60 phút" },
+        new SelectListItem { Value = "90", Text = "90 phút" },
+        new SelectListItem { Value = "120", Text = "120 phút" },
+        new SelectListItem { Value = "180", Text = "180 phút" }
+    };
+    var today = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(7)).Date;
+}
+
+<main class="py-4">
+    <p>@Html.ActionLink("← Danh sách đặt phòng", "Index", "Reservations")</p>
+    <h1>Tạo đặt phòng cho khách</h1>
+    @if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+    <p class="text-muted">Giờ nhập theo giờ Việt Nam. Hệ thống kiểm tra lại lịch phòng và lịch của khách khi lưu.</p>
+    @using (Html.BeginForm("Create", "Reservations", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+        <div class="row g-3">
+            <div class="col-md-6">
+                @Html.LabelFor(model => model.RoomId, "Phòng", new { @class = "form-label" })
+                @Html.DropDownListFor(model => model.RoomId, (SelectList)ViewBag.Rooms, "Chọn phòng", new { @class = "form-select" })
+                @Html.ValidationMessageFor(model => model.RoomId, "", new { @class = "text-danger" })
+            </div>
+            <div class="col-md-6">
+                @Html.LabelFor(model => model.BookingDate, "Ngày sử dụng", new { @class = "form-label" })
+                @Html.TextBoxFor(model => model.BookingDate, new { @class = "form-control", type = "date", min = today.ToString("yyyy-MM-dd"), max = today.AddDays(30).ToString("yyyy-MM-dd") })
+                @Html.ValidationMessageFor(model => model.BookingDate, "", new { @class = "text-danger" })
+            </div>
+            <div class="col-md-6">
+                @Html.LabelFor(model => model.StartSlot, "Giờ bắt đầu", new { @class = "form-label" })
+                @Html.DropDownListFor(model => model.StartSlot, new SelectList(slots), "Chọn giờ", new { @class = "form-select" })
+                @Html.ValidationMessageFor(model => model.StartSlot, "", new { @class = "text-danger" })
+            </div>
+            <div class="col-md-6">
+                @Html.LabelFor(model => model.DurationMinutes, "Thời lượng", new { @class = "form-label" })
+                @Html.DropDownListFor(model => model.DurationMinutes, durations, "Chọn thời lượng", new { @class = "form-select" })
+                @Html.ValidationMessageFor(model => model.DurationMinutes, "", new { @class = "text-danger" })
+            </div>
+            <div class="col-md-6">
+                @Html.LabelFor(model => model.FullName, "Họ tên khách", new { @class = "form-label" })
+                @Html.TextBoxFor(model => model.FullName, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.FullName, "", new { @class = "text-danger" })
+            </div>
+            <div class="col-md-6">
+                @Html.LabelFor(model => model.PhoneNumber, "Số điện thoại", new { @class = "form-label" })
+                @Html.TextBoxFor(model => model.PhoneNumber, new { @class = "form-control", type = "tel" })
+                @Html.ValidationMessageFor(model => model.PhoneNumber, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-4">Tạo đặt phòng</button>
+    }
+</main>
+
+@section Scripts { @Scripts.Render("~/bundles/jqueryval") }

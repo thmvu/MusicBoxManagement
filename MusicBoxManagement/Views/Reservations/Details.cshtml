@@ -1,0 +1,43 @@
+@using System.Globalization
+@model MusicBoxManagement.Models.ReservationDetailsViewModel
+@{
+    ViewBag.Title = "Chi tiết đặt phòng";
+    var offset = TimeSpan.FromHours(7);
+    var vietnamese = CultureInfo.GetCultureInfo("vi-VN");
+    var statusLabel = Model.Status == "Confirmed" ? "Đã xác nhận"
+        : Model.Status == "CheckedIn" ? "Đã nhận phòng"
+        : Model.Status == "Completed" ? "Hoàn tất"
+        : Model.Status == "Cancelled" ? "Đã hủy"
+        : Model.Status == "NoShow" ? "Không đến" : Model.Status;
+}
+
+<main class="py-4">
+    <p>@Html.ActionLink("← Danh sách đặt phòng", "Index", "Reservations")</p>
+    <h1>Đặt phòng #@Model.ReservationId</h1>
+    @if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+    @if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
+    <dl class="row">
+        <dt class="col-sm-3">Phòng</dt><dd class="col-sm-9">@Model.RoomName</dd>
+        <dt class="col-sm-3">Khách</dt><dd class="col-sm-9">@Model.CustomerName · @Model.PhoneNumber</dd>
+        <dt class="col-sm-3">Thời gian</dt><dd class="col-sm-9">@Model.StartTime.ToOffset(offset).ToString("dd/MM/yyyy HH:mm", vietnamese)–@Model.EndTime.ToOffset(offset).ToString("HH:mm", vietnamese)</dd>
+        <dt class="col-sm-3">Trạng thái</dt><dd class="col-sm-9">@statusLabel</dd>
+        @if (!string.IsNullOrWhiteSpace(Model.CancellationReason))
+        {
+            <dt class="col-sm-3">Lý do hủy</dt><dd class="col-sm-9">@(Model.CancellationReason == "Customer cancelled online" ? "Khách hủy trực tuyến" : Model.CancellationReason)</dd>
+        }
+    </dl>
+    @if (Model.CanCancel)
+    {
+        <section class="card mt-4"><div class="card-body">
+            <h2 class="h5">Hủy đặt phòng</h2>
+            @using (Html.BeginForm("Cancel", "Reservations", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.ReservationId" />
+                <label for="cancel-reason" class="form-label">Lý do hủy</label>
+                <textarea id="cancel-reason" name="reason" class="form-control mb-3" maxlength="500" required></textarea>
+                <button type="submit" class="btn btn-outline-danger">Xác nhận hủy</button>
+            }
+        </div></section>
+    }
+</main>

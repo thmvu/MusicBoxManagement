@@ -53,16 +53,32 @@ try {
     Assert-True $adjacent.Succeeded "Adjacent booking failed: $($adjacent.Error)"
     Write-Output 'PASS adjacent booking reuses customer'
 
+    $staff = [MusicBoxManagement.Models.ApplicationUser]::new()
+    $staff.Id = [Guid]::NewGuid().ToString('N'); $staff.UserName = 'booking_test_staff'; $staff.FullName = 'Test Staff'
+    [void]$setup.Users.Add($staff); [void]$setup.SaveChanges()
+    $staffContext = New-Context
+    try {
+        $staffService = [MusicBoxManagement.Services.ReservationService]::new($staffContext, [MusicBoxManagement.Services.SystemClock]::new())
+        $staffBooking = $staffService.CreateStaff($rooms[0].RoomId, 'Khách nhân viên nhập', '0987654321', ($startUtc.AddHours(2)), 60, $staff.Id)
+        Assert-True $staffBooking.Succeeded "Staff booking failed: $($staffBooking.Error)"
+        $staffConflict = $staffService.CreateStaff($rooms[0].RoomId, 'Khách bị trùng', '0900000000', ($startUtc.AddHours(2)), 60, $staff.Id)
+        Assert-True (!$staffConflict.Succeeded) 'Staff booking bypassed room conflict.'
+    }
+    finally { $staffContext.Dispose() }
+    Write-Output 'PASS staff creates booking with shared availability rules'
+
     $check = New-Context
     try {
         $customers = @($check.Customers)
         $reservations = @($check.Reservations)
         $logs = @($check.AuditLogs)
-        Assert-True ($customers.Count -eq 1) "Expected 1 customer, got $($customers.Count)."
+        Assert-True ($customers.Count -eq 2) "Expected 2 customers, got $($customers.Count)."
         Assert-True ($customers[0].FullName -eq 'Nguyễn Văn A') 'Guest input overwrote stored customer name.'
-        Assert-True ($reservations.Count -eq 2) "Expected 2 reservations, got $($reservations.Count)."
-        Assert-True (@($reservations | Where-Object Status -eq 'Confirmed').Count -eq 2) 'Reservation status is wrong.'
-        Assert-True ($logs.Count -eq 2) "Expected 2 audit logs, got $($logs.Count)."
+        Assert-True ($reservations.Count -eq 3) "Expected 3 reservations, got $($reservations.Count)."
+        Assert-True (@($reservations | Where-Object Status -eq 'Confirmed').Count -eq 3) 'Reservation status is wrong.'
+        Assert-True ($logs.Count -eq 3) "Expected 3 audit logs, got $($logs.Count)."
+        Assert-True ($check.Reservations.Find($staffBooking.ReservationId).CreatedByUserId -eq $staff.Id) 'Staff creator missing.'
+        Assert-True (@($logs | Where-Object { $_.EntityId -eq "$($staffBooking.ReservationId)" -and $_.ActorType -eq 'Staff' }).Count -eq 1) 'Staff audit missing.'
         Write-Output 'PASS persisted Customer, Reservation and AuditLog together'
     }
     finally { $check.Dispose() }
