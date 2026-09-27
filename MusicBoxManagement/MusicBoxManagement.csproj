@@ -172,6 +172,7 @@
     <Compile Include="Controllers\CustomersController.cs" />
     <Compile Include="Controllers\PublicRoomsController.cs" />
     <Compile Include="Controllers\GuestBookingsController.cs" />
+    <Compile Include="Controllers\OrdersController.cs" />
     <Compile Include="Controllers\ReservationsController.cs" />
     <Compile Include="Controllers\RoomSessionsController.cs" />
     <Compile Include="Controllers\ServiceCatalogController.cs" />
@@ -206,6 +207,7 @@
     <Compile Include="Models\Reservation.cs" />
     <Compile Include="Models\RoomSession.cs" />
     <Compile Include="Models\Order.cs" />
+    <Compile Include="Models\OrderViewModels.cs" />
     <Compile Include="Models\DashboardViewModel.cs" />
     <Compile Include="Models\RoomViewModels.cs" />
     <Compile Include="Models\RoomTypeViewModels.cs" />
@@ -228,6 +230,8 @@
     <Compile Include="Services\SessionExtendRules.cs" />
     <Compile Include="Services\OrderInputRules.cs" />
     <Compile Include="Services\OrderService.cs" />
+    <Compile Include="Services\OrderReadService.cs" />
+    <Compile Include="Services\BillingService.cs" />
     <Compile Include="Services\GuestBookingDateParser.cs" />
     <Compile Include="Services\GuestRoomScheduleRules.cs" />
     <Compile Include="Services\GuestRoomScheduleService.cs" />
@@ -366,6 +370,9 @@
     <Content Include="Views\PublicRooms\Details.cshtml" />
     <Content Include="Views\PublicRooms\BookingSuccess.cshtml" />
     <Content Include="Views\GuestBookings\Index.cshtml" />
+    <Content Include="Views\Orders\Index.cshtml" />
+    <Content Include="Views\Orders\Create.cshtml" />
+    <Content Include="Views\Orders\Details.cshtml" />
     <Content Include="Views\Reservations\Index.cshtml" />
     <Content Include="Views\Reservations\Details.cshtml" />
     <Content Include="Views\Reservations\Create.cshtml" />

@@ -47,5 +47,7 @@ namespace MusicBoxManagement.Models
         public IList<GuestBookingSummary> Bookings { get; set; } = new List<GuestBookingSummary>();
 
         public IList<GuestSessionSummary> ActiveSessions { get; set; } = new List<GuestSessionSummary>();
+
+        public IList<OrderLineChoiceViewModel> Menu { get; set; } = new List<OrderLineChoiceViewModel>();
     }
 }

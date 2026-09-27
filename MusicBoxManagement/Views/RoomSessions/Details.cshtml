@@ -31,6 +31,27 @@
             }
         }
     </dl>
+    @if (Model.Billing != null)
+    {
+        <section class="border-top pt-3 mt-4">
+            <h2 class="h5">Tiền tạm tính</h2>
+            <p class="text-muted">Cập nhật lúc @Model.Billing.UpdatedAt.ToOffset(offset).ToString("HH:mm:ss dd/MM/yyyy", vietnamese). Chỉ cộng món đã phục vụ.</p>
+            <dl class="row">
+                <dt class="col-sm-3">Thời gian đã dùng</dt><dd class="col-sm-9">@Model.Billing.UsedMinutes.ToString("N1", vietnamese) phút</dd>
+                <dt class="col-sm-3">Tiền phòng</dt><dd class="col-sm-9">@Model.Billing.RoomCharge.ToString("N0", vietnamese) đ</dd>
+                <dt class="col-sm-3">Món đã phục vụ</dt><dd class="col-sm-9">@Model.Billing.ServiceCharge.ToString("N0", vietnamese) đ</dd>
+                <dt class="col-sm-3">Tổng tạm tính</dt><dd class="col-sm-9"><strong>@Model.Billing.TotalAmount.ToString("N0", vietnamese) đ</strong></dd>
+            </dl>
+            <a class="btn btn-outline-secondary" href="@Url.Action("Details", new { id = Model.RoomSessionId })">Cập nhật tiền tạm tính</a>
+        </section>
+    }
+    @if (Model.CanViewOrders || Model.CanCreateOrder)
+    {
+        <div class="d-flex gap-2 mt-3">
+            @if (Model.CanViewOrders) { @Html.ActionLink("Xem đơn món", "Index", "Orders", new { sessionId = Model.RoomSessionId }, new { @class = "btn btn-outline-primary" }) }
+            @if (Model.CanCreateOrder) { @Html.ActionLink("Ghi món đã phục vụ", "Create", "Orders", new { sessionId = Model.RoomSessionId }, new { @class = "btn btn-primary" }) }
+        </div>
+    }
     @if (Model.CanExtend)
     {
         <section class="card mt-4"><div class="card-body">

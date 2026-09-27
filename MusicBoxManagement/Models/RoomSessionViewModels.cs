@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using MusicBoxManagement.Services;
 
 namespace MusicBoxManagement.Models
 {
@@ -41,5 +42,8 @@ namespace MusicBoxManagement.Models
         public string RoomCodeSnapshot { get; set; }
         public string RoomTypeNameSnapshot { get; set; }
         public bool CanExtend { get; set; }
+        public bool CanCreateOrder { get; set; }
+        public bool CanViewOrders { get; set; }
+        public BillingPreview Billing { get; set; }
     }
 }

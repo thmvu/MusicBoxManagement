@@ -1,0 +1,22 @@
+@using System.Globalization
+@using System.Linq
+@model IList<MusicBoxManagement.Models.OrderSummaryViewModel>
+@{ ViewBag.Title = "Đơn món"; var vi = CultureInfo.GetCultureInfo("vi-VN"); }
+<main class="py-4">
+    <h1>Đơn món</h1>
+    <p class="text-muted">100 đơn mới nhất@(ViewBag.SessionId == null ? "" : " của phiên #" + ViewBag.SessionId).</p>
+    @if (ViewBag.CanCreate && ViewBag.SessionId != null)
+    { @Html.ActionLink("Ghi món đã phục vụ", "Create", new { sessionId = ViewBag.SessionId }, new { @class = "btn btn-primary mb-3" }) }
+    @if (!Model.Any()) { <p>Chưa có đơn món.</p> }
+    else
+    {
+        <div class="table-responsive"><table class="table table-striped align-middle">
+            <thead><tr><th>Đơn</th><th>Phiên / phòng</th><th>Khách</th><th>Trạng thái</th><th class="text-end">Giá trị</th><th></th></tr></thead>
+            <tbody>@foreach (var order in Model) {
+                <tr><td>#@order.OrderId</td><td>#@order.RoomSessionId · @order.RoomName</td><td>@order.CustomerName</td>
+                    <td>@(order.Status == "Pending" ? "Đang chờ" : order.Status == "Completed" ? "Đã phục vụ" : "Đã hủy")</td>
+                    <td class="text-end">@order.Amount.ToString("N0", vi) đ</td><td>@Html.ActionLink("Chi tiết", "Details", new { id = order.OrderId })</td></tr>
+            }</tbody>
+        </table></div>
+    }
+</main>

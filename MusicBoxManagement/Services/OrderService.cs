@@ -25,6 +25,22 @@ namespace MusicBoxManagement.Services
         }
     }
 
+    public sealed class OrderTransitionResult
+    {
+        public bool Succeeded { get; private set; }
+        public string Error { get; private set; }
+
+        public static OrderTransitionResult Success()
+        {
+            return new OrderTransitionResult { Succeeded = true };
+        }
+
+        public static OrderTransitionResult Failure(string error)
+        {
+            return new OrderTransitionResult { Error = error };
+        }
+    }
+
     public sealed class OrderService
     {
         private readonly ApplicationDbContext db;
@@ -49,6 +65,68 @@ namespace MusicBoxManagement.Services
             if (string.IsNullOrWhiteSpace(userId))
                 return OrderCreateResult.Failure("Thiếu nhân viên thực hiện.");
             return Create(sessionId, null, userId, lines);
+        }
+
+        public OrderTransitionResult ConfirmByStaff(int orderId, string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                return OrderTransitionResult.Failure("Thiếu nhân viên thực hiện.");
+            return Transition(orderId, null, userId, true);
+        }
+
+        public OrderTransitionResult CancelByStaff(int orderId, string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                return OrderTransitionResult.Failure("Thiếu nhân viên thực hiện.");
+            return Transition(orderId, null, userId, false);
+        }
+
+        public OrderTransitionResult CancelGuest(int orderId, string phoneNumber)
+        {
+            string normalizedPhone;
+            if (!PhoneNumberNormalizer.TryNormalize(phoneNumber, out normalizedPhone))
+                return OrderTransitionResult.Failure("Số điện thoại không hợp lệ.");
+            return Transition(orderId, normalizedPhone, null, false);
+        }
+
+        private OrderTransitionResult Transition(int orderId, string guestPhone, string userId, bool confirm)
+        {
+            try
+            {
+                using (var transaction = db.Database.BeginTransaction(IsolationLevel.Serializable))
+                {
+                    if (userId != null && !db.Users.Any(user => user.Id == userId && user.IsActive))
+                        return OrderTransitionResult.Failure("Nhân viên không còn hoạt động.");
+                    var order = db.Orders.Include("RoomSession.Customer")
+                        .SingleOrDefault(item => item.OrderId == orderId);
+                    if (order == null || (guestPhone != null && order.RoomSession.Customer.PhoneNumber != guestPhone))
+                        return OrderTransitionResult.Failure("Không tìm thấy đơn món phù hợp.");
+                    if (order.RoomSession.Status != RoomSessionStatuses.Active)
+                        return OrderTransitionResult.Failure("Phiên đã kết thúc, không thể xử lý đơn món.");
+                    if (order.Status != OrderStatuses.Pending)
+                        return OrderTransitionResult.Failure("Trạng thái đơn đã thay đổi. Vui lòng tải lại.");
+
+                    order.Status = confirm ? OrderStatuses.Completed : OrderStatuses.Cancelled;
+                    db.AuditLogs.Add(new AuditLog
+                    {
+                        ActorType = userId == null ? "Guest" : "Staff",
+                        UserId = userId,
+                        Action = confirm ? "Confirm" : "Cancel",
+                        EntityName = "Order",
+                        EntityId = order.OrderId.ToString(),
+                        Description = confirm ? "Nhân viên xác nhận món đã phục vụ." : "Hủy đơn món đang chờ.",
+                        CreatedAt = clock.UtcNow
+                    });
+                    db.SaveChanges();
+                    transaction.Commit();
+                    return OrderTransitionResult.Success();
+                }
+            }
+            catch (Exception error)
+            {
+                if (!IsConcurrentChange(error)) throw;
+                return OrderTransitionResult.Failure("Dữ liệu vừa thay đổi. Vui lòng tải lại và thử lại.");
+            }
         }
 
         private OrderCreateResult Create(int sessionId, string guestPhone, string userId,

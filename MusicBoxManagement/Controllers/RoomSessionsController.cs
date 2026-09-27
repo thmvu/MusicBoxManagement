@@ -61,6 +61,12 @@ namespace MusicBoxManagement.Controllers
                 item.CanExtend = item.ReservationId.HasValue && item.Status == RoomSessionStatuses.Active &&
                     item.ExpectedEndTime.HasValue && DateTimeOffset.UtcNow <= item.ExpectedEndTime.Value &&
                     new PermissionService(db).HasPermission(User.Identity.GetUserId(), "Session.Extend");
+                if (item.Status == RoomSessionStatuses.Active)
+                    item.Billing = new BillingService(db, new SystemClock()).GetPreview(id);
+                var permissions = new PermissionService(db);
+                item.CanViewOrders = permissions.HasPermission(User.Identity.GetUserId(), "Order.View");
+                item.CanCreateOrder = item.Status == RoomSessionStatuses.Active &&
+                    permissions.HasPermission(User.Identity.GetUserId(), "Order.Create");
                 return View(item);
             }
         }

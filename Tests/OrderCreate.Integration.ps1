@@ -78,9 +78,27 @@ try {
         $check.Services.Find($drink.ServiceId).Name = 'New Coca'
         [void]$check.SaveChanges()
         Assert-True ($check.OrderItems.Find($items[0].OrderItemId).UnitPrice -eq 20000) 'Catalog edit changed snapshot.'
+        $clock.UtcNow = $now.AddMinutes(90)
+        $preview = [MusicBoxManagement.Services.BillingService]::new($check, $clock).GetPreview($session.RoomSessionId)
+        Assert-True ($preview.RoomCharge -eq 180000 -and $preview.ServiceCharge -eq 50000) 'Pending order was counted in preview.'
+        $lifecycle = [MusicBoxManagement.Services.OrderService]::new($check, $clock)
+        Assert-True (!$lifecycle.CancelGuest($orders[0].OrderId, '0987654321').Succeeded) 'Wrong phone cancelled order.'
+        Assert-True $lifecycle.ConfirmByStaff($orders[0].OrderId, $staff.Id).Succeeded 'Staff confirmation failed.'
+        Assert-True (!$lifecycle.ConfirmByStaff($orders[0].OrderId, $staff.Id).Succeeded) 'Repeated confirmation succeeded.'
+        Assert-True (!$lifecycle.CancelGuest($orders[0].OrderId, '0912345678').Succeeded) 'Completed order was cancelled.'
+        $check.Entry($orders[0]).Reload()
+        $afterConfirm = [MusicBoxManagement.Services.BillingService]::new($check, $clock).GetPreview($session.RoomSessionId)
+        Assert-True ($afterConfirm.ServiceCharge -eq 250000 -and $afterConfirm.TotalAmount -eq 430000) 'Confirmed order not reflected in preview.'
+        $clock.UtcNow = $now
+        $pending = $lifecycle.CreateGuest($session.RoomSessionId, '0912345678', [MusicBoxManagement.Services.OrderLineInput[]]@((Line $drink.ServiceId 1)))
+        Assert-True $pending.Succeeded 'Second Pending order failed.'
+        Assert-True $lifecycle.CancelGuest($pending.OrderId, '0912345678').Succeeded 'Guest cancellation failed.'
+        Assert-True (!$lifecycle.ConfirmByStaff($pending.OrderId, $staff.Id).Succeeded) 'Cancelled order was confirmed.'
+        $clock.UtcNow = $now.AddMinutes(90)
+        Assert-True (([MusicBoxManagement.Services.BillingService]::new($check, $clock).GetPreview($session.RoomSessionId)).ServiceCharge -eq 250000) 'Cancelled order was counted.'
     }
     finally { $check.Dispose() }
-    Write-Output 'PASS Guest Pending, Staff Completed, validation, merge, snapshot and audit'
+    Write-Output 'PASS Order creation, transition, guest ownership, billing preview, snapshot and audit'
 }
 finally {
     $setup.Dispose()

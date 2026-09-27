@@ -1,0 +1,22 @@
+@using System.Globalization
+@model MusicBoxManagement.Models.OrderSummaryViewModel
+@{ ViewBag.Title = "Đơn món #" + Model.OrderId; var vi = CultureInfo.GetCultureInfo("vi-VN"); }
+<main class="py-4">
+    <p>@Html.ActionLink("← Đơn món của phiên", "Index", new { sessionId = Model.RoomSessionId })</p>
+    <h1>Đơn món #@Model.OrderId</h1>
+    @if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+    @if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
+    <p>Phiên #@Model.RoomSessionId · @Model.RoomName · @Model.CustomerName</p>
+    <p>Trạng thái: <strong>@(Model.Status == "Pending" ? "Đang chờ" : Model.Status == "Completed" ? "Đã phục vụ" : "Đã hủy")</strong></p>
+    <table class="table table-striped"><thead><tr><th>Món</th><th>Số lượng</th><th class="text-end">Đơn giá</th><th class="text-end">Thành tiền</th></tr></thead>
+        <tbody>@foreach (var line in Model.Items) { <tr><td>@line.Name</td><td>@line.Quantity</td><td class="text-end">@line.UnitPrice.ToString("N0", vi) đ</td><td class="text-end">@line.Amount.ToString("N0", vi) đ</td></tr> }</tbody>
+        <tfoot><tr><th colspan="3">Tổng giá trị đơn</th><th class="text-end">@Model.Amount.ToString("N0", vi) đ</th></tr></tfoot>
+    </table>
+    @if (Model.Status == "Pending" && ViewBag.SessionActive)
+    {
+        <div class="d-flex gap-2">
+            @if (ViewBag.CanConfirm) { using (Html.BeginForm("Confirm", "Orders", new { id = Model.OrderId }, FormMethod.Post)) { @Html.AntiForgeryToken() <button class="btn btn-primary" type="submit">Xác nhận đã phục vụ</button> } }
+            @if (ViewBag.CanCancel) { using (Html.BeginForm("Cancel", "Orders", new { id = Model.OrderId }, FormMethod.Post)) { @Html.AntiForgeryToken() <button class="btn btn-outline-danger" type="submit">Hủy đơn</button> } }
+        </div>
+    }
+</main>

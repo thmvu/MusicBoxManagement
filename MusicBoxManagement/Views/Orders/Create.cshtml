@@ -1,0 +1,29 @@
+@using System.Globalization
+@using System.Linq
+@model MusicBoxManagement.Models.StaffOrderCreateViewModel
+@{ ViewBag.Title = "Ghi món đã phục vụ"; var vi = CultureInfo.GetCultureInfo("vi-VN"); }
+<main class="py-4">
+    <p>@Html.ActionLink("← Về phiên sử dụng", "Details", "RoomSessions", new { id = Model.RoomSessionId }, null)</p>
+    <h1>Ghi món đã phục vụ</h1>
+    <p>Phiên #@Model.RoomSessionId · @Model.RoomName · @Model.CustomerName</p>
+    <p class="text-muted">Chỉ ghi món sau khi đã phục vụ. Đơn được tính tiền ngay sau khi lưu.</p>
+    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(model => model.RoomSessionId)
+        if (!Model.Lines.Any()) { <p>Chưa có món đang bán.</p> }
+        else
+        {
+            <div class="table-responsive"><table class="table table-striped align-middle">
+                <thead><tr><th>Món</th><th>Nhóm</th><th>Giá</th><th style="width:8rem">Số lượng</th></tr></thead>
+                <tbody>@for (var i = 0; i < Model.Lines.Count; i++) {
+                    <tr><td>@Model.Lines[i].Name @Html.HiddenFor(model => model.Lines[i].ServiceId)</td>
+                        <td>@Model.Lines[i].Category</td><td>@Model.Lines[i].Price.ToString("N0", vi) đ</td>
+                        <td>@Html.TextBoxFor(model => model.Lines[i].Quantity, new { @class = "form-control", type = "number", min = "0", max = "10" })</td></tr>
+                }</tbody>
+            </table></div>
+            <button type="submit" class="btn btn-primary">Lưu món đã phục vụ</button>
+        }
+    }
+</main>

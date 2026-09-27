@@ -14,6 +14,7 @@
     {
         <div class="alert alert-success">@TempData["Success"]</div>
     }
+    @if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
     @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
     @using (Html.BeginForm("Lookup", "GuestBookings", FormMethod.Post, new { @class = "row g-2 align-items-end mb-4" }))
     {
@@ -64,6 +65,65 @@
                         else
                         {
                             <p class="text-muted mb-0">Phiên khách trực tiếp; vui lòng liên hệ nhân viên về thời gian sử dụng.</p>
+                        }
+                        @if (session.Billing != null)
+                        {
+                            <div class="border-top mt-3 pt-3">
+                                <h4 class="h6">Tiền tạm tính</h4>
+                                <p class="small text-muted">Cập nhật @session.Billing.UpdatedAt.ToOffset(vietnamOffset).ToString("HH:mm:ss dd/MM/yyyy", vietnamese) · @session.Billing.UsedMinutes.ToString("N1", vietnamese) phút</p>
+                                <p>Phòng: @session.Billing.RoomCharge.ToString("N0", vietnamese) đ<br />Món đã phục vụ: @session.Billing.ServiceCharge.ToString("N0", vietnamese) đ<br /><strong>Tổng: @session.Billing.TotalAmount.ToString("N0", vietnamese) đ</strong></p>
+                                @using (Html.BeginForm("Lookup", "GuestBookings", FormMethod.Post))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="PhoneNumber" value="@Model.PhoneNumber" />
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm">Cập nhật</button>
+                                }
+                            </div>
+                        }
+                        @if (session.Orders.Any())
+                        {
+                            <div class="border-top mt-3 pt-3">
+                                <h4 class="h6">Đơn món</h4>
+                                @foreach (var order in session.Orders)
+                                {
+                                    <div class="mb-3">
+                                        <strong>#@order.OrderId</strong> · @(order.Status == "Pending" ? "Đang chờ" : order.Status == "Completed" ? "Đã phục vụ" : "Đã hủy") · @order.Amount.ToString("N0", vietnamese) đ
+                                        <ul>@foreach (var line in order.Items) { <li>@line.Name × @line.Quantity — @line.Amount.ToString("N0", vietnamese) đ</li> }</ul>
+                                        @if (order.Status == "Pending")
+                                        {
+                                            using (Html.BeginForm("CancelOrder", "GuestBookings", FormMethod.Post))
+                                            {
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="orderId" value="@order.OrderId" />
+                                                <input type="hidden" name="phoneNumber" value="@Model.PhoneNumber" />
+                                                <button type="submit" class="btn btn-outline-danger btn-sm">Hủy đơn đang chờ</button>
+                                            }
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                        @if (Model.Menu.Any())
+                        {
+                            <div class="border-top mt-3 pt-3">
+                                <h4 class="h6">Gọi món</h4>
+                                <p class="small text-muted">Chọn số lượng rồi gửi yêu cầu. Nhân viên xác nhận sau khi phục vụ.</p>
+                                @using (Html.BeginForm("CreateOrder", "GuestBookings", FormMethod.Post))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="sessionId" value="@session.RoomSessionId" />
+                                    <input type="hidden" name="phoneNumber" value="@Model.PhoneNumber" />
+                                    for (var i = 0; i < Model.Menu.Count; i++)
+                                    {
+                                        <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+                                            <label for="quantity-@session.RoomSessionId-@i">@Model.Menu[i].Name · @Model.Menu[i].Price.ToString("N0", vietnamese) đ</label>
+                                            <input type="hidden" name="lines[@i].ServiceId" value="@Model.Menu[i].ServiceId" />
+                                            <input id="quantity-@session.RoomSessionId-@i" type="number" name="lines[@i].Quantity" min="0" max="10" value="0" class="form-control" style="width:5rem" />
+                                        </div>
+                                    }
+                                    <button type="submit" class="btn btn-primary mt-2">Gửi yêu cầu món</button>
+                                }
+                            </div>
                         }
                     </div></article></div>
                 }

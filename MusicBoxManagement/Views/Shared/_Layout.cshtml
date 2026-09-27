@@ -7,6 +7,7 @@
     var canDashboard = false;
     var canReservations = false;
     var canSessions = false;
+    var canOrders = false;
     var canCustomers = false;
     var canRooms = false;
     var canRoomTypes = false;
@@ -21,6 +22,7 @@
             canDashboard = permissions.HasPermission(userId, "Dashboard.View");
             canReservations = permissions.HasPermission(userId, "Reservation.View");
             canSessions = permissions.HasPermission(userId, "Session.View");
+            canOrders = permissions.HasPermission(userId, "Order.View");
             canCustomers = permissions.HasPermission(userId, "Customer.View");
             canRooms = permissions.HasPermission(userId, "Room.Manage");
             canRoomTypes = permissions.HasPermission(userId, "RoomType.Edit");
@@ -28,7 +30,7 @@
             canUsers = permissions.HasPermission(userId, "User.Manage");
         }
     }
-    var operationsActive = controller == "Dashboard" || controller == "Reservations" || controller == "RoomSessions" || controller == "Customers";
+    var operationsActive = controller == "Dashboard" || controller == "Reservations" || controller == "RoomSessions" || controller == "Orders" || controller == "Customers";
     var catalogActive = controller == "Rooms" || controller == "RoomTypes" || controller == "ServiceCatalog";
 }
 <!DOCTYPE html>
@@ -54,7 +56,7 @@
                     <ul class="navbar-nav site-nav-links">
                         <li class="nav-item">@Html.ActionLink("Xem phòng", "Index", "PublicRooms", null, new { @class = "nav-link" + (controller == "PublicRooms" ? " active" : "") })</li>
                         <li class="nav-item">@Html.ActionLink("Tra cứu đặt phòng", "Index", "GuestBookings", null, new { @class = "nav-link" + (controller == "GuestBookings" ? " active" : "") })</li>
-                        @if (canDashboard || canReservations || canSessions || canCustomers)
+                        @if (canDashboard || canReservations || canSessions || canOrders || canCustomers)
                         {
                             <li class="nav-item dropdown">
                                 <button class="nav-link dropdown-toggle @(operationsActive ? "active" : "")" type="button" data-bs-toggle="dropdown" aria-expanded="false">Vận hành</button>
@@ -62,6 +64,7 @@
                                     @if (canDashboard) { <li>@Html.ActionLink("Tổng quan", "Index", "Dashboard", null, new { @class = "dropdown-item" })</li> }
                                     @if (canReservations) { <li>@Html.ActionLink("Đặt phòng", "Index", "Reservations", null, new { @class = "dropdown-item" })</li> }
                                     @if (canSessions) { <li>@Html.ActionLink("Phiên sử dụng", "Index", "RoomSessions", null, new { @class = "dropdown-item" })</li> }
+                                    @if (canOrders) { <li>@Html.ActionLink("Đơn món", "Index", "Orders", null, new { @class = "dropdown-item" })</li> }
                                     @if (canCustomers) { <li>@Html.ActionLink("Khách hàng", "Index", "Customers", null, new { @class = "dropdown-item" })</li> }
                                 </ul>
                             </li>

@@ -56,6 +56,8 @@ namespace MusicBoxManagement.Services
         public DateTimeOffset ActualStartTime { get; set; }
         public DateTimeOffset? ExpectedEndTime { get; set; }
         public bool CanExtend { get; set; }
+        public BillingPreview Billing { get; set; }
+        public IList<OrderSummaryViewModel> Orders { get; set; } = new List<OrderSummaryViewModel>();
     }
 
     public sealed class ReservationService
