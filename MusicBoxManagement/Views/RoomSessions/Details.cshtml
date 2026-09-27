@@ -10,6 +10,7 @@
     <p>@Html.ActionLink("← Phiên đang hoạt động", "Index", "RoomSessions")</p>
     <h1>Phiên sử dụng #@Model.RoomSessionId</h1>
     @if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+    @if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
     <dl class="row">
         <dt class="col-sm-3">Phòng</dt><dd class="col-sm-9">@Model.RoomName (@Model.RoomCodeSnapshot · @Model.RoomTypeNameSnapshot)</dd>
         <dt class="col-sm-3">Khách</dt><dd class="col-sm-9">@Model.CustomerName · @Model.PhoneNumber</dd>
@@ -30,4 +31,23 @@
             }
         }
     </dl>
+    @if (Model.CanExtend)
+    {
+        <section class="card mt-4"><div class="card-body">
+            <h2 class="h5">Gia hạn phiên</h2>
+            <p>Gia hạn từ giờ dự kiến kết thúc hiện tại. Hệ thống sẽ kiểm tra lại ca mở cửa và lịch phòng/khách.</p>
+            <div class="d-flex gap-2">
+                @foreach (var minutes in new[] { 30, 60 })
+                {
+                    using (Html.BeginForm("Extend", "RoomSessions", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.RoomSessionId" />
+                        <input type="hidden" name="minutes" value="@minutes" />
+                        <button type="submit" class="btn btn-outline-primary">+@minutes phút</button>
+                    }
+                }
+            </div>
+        </div></section>
+    }
 </main>

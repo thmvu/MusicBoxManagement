@@ -222,6 +222,7 @@
     <Compile Include="Services\CheckInRules.cs" />
     <Compile Include="Services\RoomSessionService.cs" />
     <Compile Include="Services\WalkInRules.cs" />
+    <Compile Include="Services\SessionExtendRules.cs" />
     <Compile Include="Services\GuestBookingDateParser.cs" />
     <Compile Include="Services\GuestRoomScheduleRules.cs" />
     <Compile Include="Services\GuestRoomScheduleService.cs" />

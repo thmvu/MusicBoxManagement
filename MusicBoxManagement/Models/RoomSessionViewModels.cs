@@ -40,5 +40,6 @@ namespace MusicBoxManagement.Models
         public decimal HourlyRate { get; set; }
         public string RoomCodeSnapshot { get; set; }
         public string RoomTypeNameSnapshot { get; set; }
+        public bool CanExtend { get; set; }
     }
 }

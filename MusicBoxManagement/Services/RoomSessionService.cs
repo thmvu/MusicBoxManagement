@@ -42,6 +42,23 @@ namespace MusicBoxManagement.Services
         }
     }
 
+    public sealed class SessionExtendResult
+    {
+        public bool Succeeded { get; private set; }
+        public DateTimeOffset NewEndUtc { get; private set; }
+        public string Error { get; private set; }
+
+        public static SessionExtendResult Success(DateTimeOffset newEndUtc)
+        {
+            return new SessionExtendResult { Succeeded = true, NewEndUtc = newEndUtc };
+        }
+
+        public static SessionExtendResult Failure(string error)
+        {
+            return new SessionExtendResult { Error = error };
+        }
+    }
+
     public sealed class RoomSessionService
     {
         private readonly ApplicationDbContext db;
@@ -218,6 +235,69 @@ namespace MusicBoxManagement.Services
                 .ToList();
             return WalkInRules.GetWarningEnd(session.RoomId, session.CustomerId,
                 session.ActualStartTime, clock.UtcNow, reservations);
+        }
+
+        public SessionExtendResult ExtendGuest(int sessionId, int minutes, string phoneNumber)
+        {
+            string normalizedPhone;
+            if (!PhoneNumberNormalizer.TryNormalize(phoneNumber, out normalizedPhone))
+                return SessionExtendResult.Failure("Số điện thoại không hợp lệ.");
+            return Extend(sessionId, minutes, normalizedPhone, null);
+        }
+
+        public SessionExtendResult ExtendByStaff(int sessionId, int minutes, string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                return SessionExtendResult.Failure("Thiếu nhân viên thực hiện.");
+            return Extend(sessionId, minutes, null, userId);
+        }
+
+        private SessionExtendResult Extend(int sessionId, int minutes, string guestPhone, string userId)
+        {
+            try
+            {
+                using (var transaction = db.Database.BeginTransaction(IsolationLevel.Serializable))
+                {
+                    if (userId != null && !db.Users.Any(user => user.Id == userId && user.IsActive))
+                        return SessionExtendResult.Failure("Nhân viên không còn hoạt động.");
+                    var session = db.RoomSessions.Include("Customer")
+                        .SingleOrDefault(item => item.RoomSessionId == sessionId);
+                    if (session == null || (guestPhone != null && session.Customer.PhoneNumber != guestPhone))
+                        return SessionExtendResult.Failure("Không tìm thấy phiên phù hợp.");
+
+                    var reservations = db.Reservations.AsNoTracking()
+                        .Where(item => item.Status == ReservationStatuses.Confirmed &&
+                            (item.RoomId == session.RoomId || item.CustomerId == session.CustomerId))
+                        .ToList();
+                    var otherSessions = db.RoomSessions.AsNoTracking()
+                        .Where(item => item.RoomSessionId != sessionId && item.Status == RoomSessionStatuses.Active &&
+                            (item.RoomId == session.RoomId || item.CustomerId == session.CustomerId))
+                        .ToList();
+                    var now = clock.UtcNow;
+                    var check = SessionExtendRules.Validate(session, now, minutes, reservations, otherSessions);
+                    if (!check.IsValid) return SessionExtendResult.Failure(check.Error);
+
+                    session.ExpectedEndTime = check.NewEndUtc;
+                    db.AuditLogs.Add(new AuditLog
+                    {
+                        ActorType = guestPhone == null ? "Staff" : "Guest",
+                        UserId = userId,
+                        Action = "Extend",
+                        EntityName = "RoomSession",
+                        EntityId = sessionId.ToString(),
+                        Description = "Gia hạn thêm " + minutes + " phút.",
+                        CreatedAt = now
+                    });
+                    db.SaveChanges();
+                    transaction.Commit();
+                    return SessionExtendResult.Success(check.NewEndUtc);
+                }
+            }
+            catch (Exception error)
+            {
+                if (!IsConcurrentChange(error)) throw;
+                return SessionExtendResult.Failure("Dữ liệu vừa thay đổi. Vui lòng tải lại và thử lại.");
+            }
         }
 
         private static bool IsConcurrentChange(Exception error)

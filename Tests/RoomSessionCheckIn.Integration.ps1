@@ -85,6 +85,37 @@ try {
     }
     finally { $check.Dispose() }
     Write-Output 'PASS check-in transaction, snapshot, audit and repeated request'
+
+    $lookupContext = New-Context
+    try {
+        $guestLookup = ([MusicBoxManagement.Services.ReservationService]::new($lookupContext, $clock)).LookupGuest('0912345678')
+        Assert-True ($guestLookup.ActiveSessions.Count -eq 1) 'Guest lookup did not show Active session.'
+        Assert-True ($guestLookup.ActiveSessions[0].CanExtend) 'Guest could not see extend action.'
+        Assert-True (([MusicBoxManagement.Services.ReservationService]::new($lookupContext, $clock)).LookupGuest('0987654321').ActiveSessions.Count -eq 0) 'Other phone saw Active session.'
+    }
+    finally { $lookupContext.Dispose() }
+
+    $clock.UtcNow = $start
+    $context = New-Context
+    try {
+        $service = [MusicBoxManagement.Services.RoomSessionService]::new($context, $clock)
+        Assert-True (!$service.ExtendGuest($first.RoomSessionId, 30, '0900000000').Succeeded) 'Wrong phone extended session.'
+        $guestExtension = $service.ExtendGuest($first.RoomSessionId, 30, '+84 912 345 678')
+        Assert-True ($guestExtension.Succeeded -and $guestExtension.NewEndUtc -eq $start.AddHours(1).AddMinutes(30)) 'Guest extension failed.'
+        $staffExtension = $service.ExtendByStaff($first.RoomSessionId, 30, $staff.Id)
+        Assert-True ($staffExtension.Succeeded -and $staffExtension.NewEndUtc -eq $start.AddHours(2)) 'Staff extension failed.'
+        Assert-True (!$service.ExtendByStaff($first.RoomSessionId, 30, $staff.Id).Succeeded) 'Extension overlapped next booking.'
+    }
+    finally { $context.Dispose() }
+    $check = New-Context
+    try {
+        Assert-True ($check.RoomSessions.Find($first.RoomSessionId).ExpectedEndTime -eq $start.AddHours(2)) 'Extended end not saved.'
+        Assert-True ($check.Reservations.Find($booking.ReservationId).EndTime -eq $start.AddHours(2)) 'Reservation end was changed.'
+        Assert-True ($check.RoomSessions.Find($first.RoomSessionId).HourlyRate -eq 120000) 'Extension changed snapshot rate.'
+        Assert-True (@($check.AuditLogs | Where-Object { $_.Action -eq 'Extend' }).Count -eq 2) 'Extension audit count incorrect.'
+    }
+    finally { $check.Dispose() }
+    Write-Output 'PASS Guest/Staff extension, phone check, next booking, snapshot and audit'
 }
 finally {
     $setup.Dispose()

@@ -26,6 +26,7 @@ namespace MusicBoxManagement.Controllers
                     ModelState.AddModelError("PhoneNumber", "Số điện thoại không hợp lệ.");
                 model.HasSearched = result.IsValid;
                 model.Bookings = result.Bookings;
+                model.ActiveSessions = result.ActiveSessions;
             }
             return View("Index", model);
         }
@@ -48,6 +49,24 @@ namespace MusicBoxManagement.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult Extend(int sessionId, int minutes, string phoneNumber)
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                var service = new RoomSessionService(db, new SystemClock());
+                var result = service.ExtendGuest(sessionId, minutes, phoneNumber);
+                if (!result.Succeeded)
+                {
+                    ModelState.AddModelError("", result.Error);
+                    return View("Index", BuildModel(phoneNumber));
+                }
+            }
+            TempData["Success"] = "Đã gia hạn phiên thêm " + minutes + " phút.";
+            TempData["LookupPhone"] = phoneNumber;
+            return RedirectToAction("Index");
+        }
+
         private static GuestLookupViewModel BuildModel(string phoneNumber)
         {
             using (var db = new ApplicationDbContext())
@@ -61,7 +80,8 @@ namespace MusicBoxManagement.Controllers
             {
                 PhoneNumber = phoneNumber,
                 HasSearched = result.IsValid,
-                Bookings = result.Bookings
+                Bookings = result.Bookings,
+                ActiveSessions = result.ActiveSessions
             };
         }
     }

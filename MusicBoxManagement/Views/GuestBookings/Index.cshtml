@@ -28,6 +28,47 @@
 
     @if (Model.HasSearched)
     {
+        if (Model.ActiveSessions.Any())
+        {
+            <h2 class="h4">Phiên đang sử dụng</h2>
+            <div class="row g-3 mb-4">
+                @foreach (var session in Model.ActiveSessions)
+                {
+                    <div class="col-md-6"><article class="card h-100"><div class="card-body">
+                        <h3 class="h5">@session.RoomName</h3>
+                        <p>Bắt đầu: @session.ActualStartTime.ToOffset(vietnamOffset).ToString("dd/MM/yyyy HH:mm", vietnamese)</p>
+                        @if (session.ExpectedEndTime.HasValue)
+                        {
+                            <p>Dự kiến kết thúc: @session.ExpectedEndTime.Value.ToOffset(vietnamOffset).ToString("dd/MM/yyyy HH:mm", vietnamese)</p>
+                            if (session.CanExtend)
+                            {
+                                <div class="d-flex gap-2">
+                                    @foreach (var minutes in new[] { 30, 60 })
+                                    {
+                                        using (Html.BeginForm("Extend", "GuestBookings", FormMethod.Post))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="sessionId" value="@session.RoomSessionId" />
+                                            <input type="hidden" name="phoneNumber" value="@Model.PhoneNumber" />
+                                            <input type="hidden" name="minutes" value="@minutes" />
+                                            <button type="submit" class="btn btn-outline-primary">Gia hạn +@minutes phút</button>
+                                        }
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted mb-0">Đã quá giờ dự kiến. Vui lòng liên hệ nhân viên.</p>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-muted mb-0">Phiên khách trực tiếp; vui lòng liên hệ nhân viên về thời gian sử dụng.</p>
+                        }
+                    </div></article></div>
+                }
+            </div>
+        }
         if (!Model.Bookings.Any())
         {
             <p>Không có đặt phòng nào còn hiệu lực cho số điện thoại này.</p>

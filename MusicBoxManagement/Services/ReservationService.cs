@@ -46,6 +46,16 @@ namespace MusicBoxManagement.Services
     {
         public bool IsValid { get; set; }
         public IList<GuestBookingSummary> Bookings { get; set; }
+        public IList<GuestSessionSummary> ActiveSessions { get; set; }
+    }
+
+    public sealed class GuestSessionSummary
+    {
+        public int RoomSessionId { get; set; }
+        public string RoomName { get; set; }
+        public DateTimeOffset ActualStartTime { get; set; }
+        public DateTimeOffset? ExpectedEndTime { get; set; }
+        public bool CanExtend { get; set; }
     }
 
     public sealed class ReservationService
@@ -156,7 +166,11 @@ namespace MusicBoxManagement.Services
         {
             string normalizedPhone;
             if (!PhoneNumberNormalizer.TryNormalize(phoneNumber, out normalizedPhone))
-                return new GuestLookupResult { Bookings = new List<GuestBookingSummary>() };
+                return new GuestLookupResult
+                {
+                    Bookings = new List<GuestBookingSummary>(),
+                    ActiveSessions = new List<GuestSessionSummary>()
+                };
 
             var now = clock.UtcNow;
             var earliestStart = now.AddMinutes(-15);
@@ -174,7 +188,23 @@ namespace MusicBoxManagement.Services
                     EndTime = item.EndTime,
                     CanCancel = now <= item.StartTime.AddHours(-2)
                 }).ToList();
-            return new GuestLookupResult { IsValid = true, Bookings = bookings };
+            var sessions = db.RoomSessions
+                .Where(item => item.Customer.PhoneNumber == normalizedPhone &&
+                    item.Status == RoomSessionStatuses.Active)
+                .OrderBy(item => item.ActualStartTime)
+                .Select(item => new { item.RoomSessionId, item.Room.Name, item.ActualStartTime,
+                    item.ExpectedEndTime, item.ReservationId })
+                .ToList()
+                .Select(item => new GuestSessionSummary
+                {
+                    RoomSessionId = item.RoomSessionId,
+                    RoomName = item.Name,
+                    ActualStartTime = item.ActualStartTime,
+                    ExpectedEndTime = item.ExpectedEndTime,
+                    CanExtend = item.ReservationId.HasValue && item.ExpectedEndTime.HasValue &&
+                        now <= item.ExpectedEndTime.Value
+                }).ToList();
+            return new GuestLookupResult { IsValid = true, Bookings = bookings, ActiveSessions = sessions };
         }
 
         public ReservationCancelResult CancelByStaff(int reservationId, string reason, string userId)

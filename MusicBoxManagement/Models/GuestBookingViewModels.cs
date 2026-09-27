@@ -45,5 +45,7 @@ namespace MusicBoxManagement.Models
         public bool HasSearched { get; set; }
 
         public IList<GuestBookingSummary> Bookings { get; set; } = new List<GuestBookingSummary>();
+
+        public IList<GuestSessionSummary> ActiveSessions { get; set; } = new List<GuestSessionSummary>();
     }
 }

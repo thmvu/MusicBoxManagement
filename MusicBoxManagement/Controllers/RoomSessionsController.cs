@@ -58,6 +58,9 @@ namespace MusicBoxManagement.Controllers
                 if (item == null) return HttpNotFound();
                 if (!item.ReservationId.HasValue && item.Status == RoomSessionStatuses.Active)
                     item.WarningEndUtc = new RoomSessionService(db, new SystemClock()).GetWalkInWarning(id);
+                item.CanExtend = item.ReservationId.HasValue && item.Status == RoomSessionStatuses.Active &&
+                    item.ExpectedEndTime.HasValue && DateTimeOffset.UtcNow <= item.ExpectedEndTime.Value &&
+                    new PermissionService(db).HasPermission(User.Identity.GetUserId(), "Session.Extend");
                 return View(item);
             }
         }
@@ -91,6 +94,19 @@ namespace MusicBoxManagement.Controllers
                 SetRoomOptions(db);
                 return View(model);
             }
+        }
+
+        [HttpPost, ValidateAntiForgeryToken, PermissionAuthorize("Session.Extend")]
+        public ActionResult Extend(int id, int minutes)
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                var result = new RoomSessionService(db, new SystemClock())
+                    .ExtendByStaff(id, minutes, User.Identity.GetUserId());
+                TempData[result.Succeeded ? "Success" : "Error"] = result.Succeeded
+                    ? "Đã gia hạn thêm " + minutes + " phút." : result.Error;
+            }
+            return RedirectToAction("Details", new { id });
         }
 
         private void SetRoomOptions(ApplicationDbContext db)

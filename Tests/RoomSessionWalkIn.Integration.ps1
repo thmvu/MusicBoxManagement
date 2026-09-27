@@ -85,6 +85,8 @@ try {
         Assert-True ($session.ActualStartTime -eq $now -and $session.Status -eq 'Active') 'Walk-in time/status wrong.'
         Assert-True ($session.HourlyRate -eq 120000 -and $session.RoomCodeSnapshot -eq 'R1') 'Walk-in snapshot wrong.'
         Assert-True (@($check.AuditLogs | Where-Object { $_.Action -eq 'WalkIn' }).Count -eq 1) 'Walk-in audit missing.'
+        $lookup = ([MusicBoxManagement.Services.ReservationService]::new($check, $clock)).LookupGuest('0912345678')
+        Assert-True ($lookup.ActiveSessions.Count -eq 1 -and !$lookup.ActiveSessions[0].CanExtend) 'Walk-in lookup incorrectly offers extension.'
         $earlier = [MusicBoxManagement.Models.Reservation]::new()
         $earlier.RoomId = $room.RoomId; $earlier.CustomerId = $bookedCustomer.CustomerId
         $earlier.StartTime = [DateTimeOffset]::new($day.AddHours(18), $offset).ToUniversalTime()
