@@ -45,6 +45,10 @@ namespace MusicBoxManagement.Models
 
         public DbSet<RoomSession> RoomSessions { get; set; }
 
+        public DbSet<Order> Orders { get; set; }
+
+        public DbSet<OrderItem> OrderItems { get; set; }
+
         public ApplicationDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)
         {
@@ -162,6 +166,34 @@ namespace MusicBoxManagement.Models
 
             modelBuilder.Entity<RoomSession>()
                 .Property(session => session.HourlyRate)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Order>()
+                .HasRequired(order => order.RoomSession)
+                .WithMany()
+                .HasForeignKey(order => order.RoomSessionId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Order>()
+                .HasOptional(order => order.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(order => order.CreatedByUserId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<OrderItem>()
+                .HasRequired(item => item.Order)
+                .WithMany(order => order.Items)
+                .HasForeignKey(item => item.OrderId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<OrderItem>()
+                .HasRequired(item => item.Service)
+                .WithMany()
+                .HasForeignKey(item => item.ServiceId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<OrderItem>()
+                .Property(item => item.UnitPrice)
                 .HasPrecision(18, 2);
         }
     }

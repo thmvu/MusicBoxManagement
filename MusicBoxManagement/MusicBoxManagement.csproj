@@ -204,6 +204,7 @@
     <Compile Include="Models\Room.cs" />
     <Compile Include="Models\Reservation.cs" />
     <Compile Include="Models\RoomSession.cs" />
+    <Compile Include="Models\Order.cs" />
     <Compile Include="Models\RoomViewModels.cs" />
     <Compile Include="Models\RoomTypeViewModels.cs" />
     <Compile Include="Services\RoomTypeService.cs" />
@@ -223,6 +224,8 @@
     <Compile Include="Services\RoomSessionService.cs" />
     <Compile Include="Services\WalkInRules.cs" />
     <Compile Include="Services\SessionExtendRules.cs" />
+    <Compile Include="Services\OrderInputRules.cs" />
+    <Compile Include="Services\OrderService.cs" />
     <Compile Include="Services\GuestBookingDateParser.cs" />
     <Compile Include="Services\GuestRoomScheduleRules.cs" />
     <Compile Include="Services\GuestRoomScheduleService.cs" />
@@ -256,6 +259,10 @@
     <Compile Include="Migrations\202609251400359_AddRoomSession.cs" />
     <Compile Include="Migrations\202609251400359_AddRoomSession.Designer.cs">
       <DependentUpon>202609251400359_AddRoomSession.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202609271249397_AddOrder.cs" />
+    <Compile Include="Migrations\202609271249397_AddOrder.Designer.cs">
+      <DependentUpon>202609271249397_AddOrder.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\202609210920479_AddApplicationUserProfile.cs" />
     <Compile Include="Migrations\202609210920479_AddApplicationUserProfile.Designer.cs">
@@ -464,6 +471,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202609251400359_AddRoomSession.resx">
       <DependentUpon>202609251400359_AddRoomSession.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202609271249397_AddOrder.resx">
+      <DependentUpon>202609271249397_AddOrder.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202609210920479_AddApplicationUserProfile.resx">
       <DependentUpon>202609210920479_AddApplicationUserProfile.cs</DependentUpon>
