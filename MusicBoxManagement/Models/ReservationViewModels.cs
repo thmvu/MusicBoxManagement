@@ -31,5 +31,10 @@ namespace MusicBoxManagement.Models
         public string Status { get; set; }
         public string CancellationReason { get; set; }
         public bool CanCancel { get; set; }
+        public bool CanCheckIn { get; set; }
+        public int? RoomSessionId { get; set; }
+        public DateTimeOffset? ActualStartTime { get; set; }
+        public DateTimeOffset? ExpectedEndTime { get; set; }
+        public decimal? HourlyRate { get; set; }
     }
 }

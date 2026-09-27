@@ -26,6 +26,28 @@
             <dt class="col-sm-3">Lý do hủy</dt><dd class="col-sm-9">@(Model.CancellationReason == "Customer cancelled online" ? "Khách hủy trực tuyến" : Model.CancellationReason)</dd>
         }
     </dl>
+    @if (Model.RoomSessionId.HasValue)
+    {
+        <section class="card mt-4"><div class="card-body">
+            <h2 class="h5">Phiên sử dụng #@Model.RoomSessionId</h2>
+            <p class="mb-1">Bắt đầu thực tế: @Model.ActualStartTime.Value.ToOffset(offset).ToString("dd/MM/yyyy HH:mm", vietnamese)</p>
+            <p class="mb-1">Dự kiến kết thúc: @Model.ExpectedEndTime.Value.ToOffset(offset).ToString("dd/MM/yyyy HH:mm", vietnamese)</p>
+            <p class="mb-0">Giá đã chốt: @Model.HourlyRate.Value.ToString("N0", vietnamese) đ/giờ</p>
+        </div></section>
+    }
+    @if (Model.CanCheckIn)
+    {
+        <section class="card mt-4"><div class="card-body">
+            <h2 class="h5">Nhận phòng</h2>
+            <p>Giờ bắt đầu thực tế và giá phòng sẽ được chốt khi xác nhận. Hệ thống kiểm tra lại ca mở cửa, phòng, khách và booking tiếp theo.</p>
+            @using (Html.BeginForm("CheckIn", "Reservations", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.ReservationId" />
+                <button type="submit" class="btn btn-primary">Xác nhận nhận phòng</button>
+            }
+        </div></section>
+    }
     @if (Model.CanCancel)
     {
         <section class="card mt-4"><div class="card-body">

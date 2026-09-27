@@ -69,6 +69,18 @@ namespace MusicBoxManagement.Controllers
                 item.CanCancel = item.Status == ReservationStatuses.Confirmed &&
                     DateTimeOffset.UtcNow < item.StartTime.AddMinutes(15) &&
                     new PermissionService(db).HasPermission(User.Identity.GetUserId(), "Reservation.Cancel");
+                item.CanCheckIn = item.Status == ReservationStatuses.Confirmed &&
+                    DateTimeOffset.UtcNow < item.StartTime.AddMinutes(15) &&
+                    new PermissionService(db).HasPermission(User.Identity.GetUserId(), "Session.CheckIn");
+                var session = db.RoomSessions.AsNoTracking()
+                    .SingleOrDefault(current => current.ReservationId == id);
+                if (session != null)
+                {
+                    item.RoomSessionId = session.RoomSessionId;
+                    item.ActualStartTime = session.ActualStartTime;
+                    item.ExpectedEndTime = session.ExpectedEndTime;
+                    item.HourlyRate = session.HourlyRate;
+                }
                 return View(item);
             }
         }
@@ -123,6 +135,20 @@ namespace MusicBoxManagement.Controllers
                     .CancelByStaff(id, reason, User.Identity.GetUserId());
                 TempData[result.Succeeded ? "Success" : "Error"] = result.Succeeded
                     ? "Đã hủy đặt phòng." : result.Error;
+            }
+            return RedirectToAction("Details", new { id });
+        }
+
+        [HttpPost, ValidateAntiForgeryToken, PermissionAuthorize("Session.CheckIn")]
+        public ActionResult CheckIn(int id)
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                var result = new RoomSessionService(db, new SystemClock())
+                    .CheckIn(id, User.Identity.GetUserId());
+                TempData[result.Succeeded ? "Success" : "Error"] = result.Succeeded
+                    ? "Đã nhận phòng. Phiên sử dụng #" + result.RoomSessionId + " đang hoạt động."
+                    : result.Error;
             }
             return RedirectToAction("Details", new { id });
         }
