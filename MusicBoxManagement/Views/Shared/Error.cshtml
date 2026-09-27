@@ -1,9 +1,12 @@
 ﻿@model System.Web.Mvc.HandleErrorInfo
 
 @{
-    ViewBag.Title = "Error";
+    ViewBag.Title = "Có lỗi xảy ra";
 }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+<main class="py-4">
+    <h1>Không thể tải trang</h1>
+    <p>Đã xảy ra lỗi khi xử lý yêu cầu. Vui lòng thử lại sau.</p>
+    @Html.ActionLink("Về trang xem phòng", "Index", "PublicRooms", null, new { @class = "btn btn-outline-primary" })
+</main>
 

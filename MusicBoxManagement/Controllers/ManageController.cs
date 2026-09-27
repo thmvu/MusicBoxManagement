@@ -56,12 +56,12 @@ namespace MusicBoxManagement.Controllers
         public async Task<ActionResult> Index(ManageMessageId? message)
         {
             ViewBag.StatusMessage =
-                message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
-                : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
-                : message == ManageMessageId.SetTwoFactorSuccess ? "Your two-factor authentication provider has been set."
-                : message == ManageMessageId.Error ? "An error has occurred."
-                : message == ManageMessageId.AddPhoneSuccess ? "Your phone number was added."
-                : message == ManageMessageId.RemovePhoneSuccess ? "Your phone number was removed."
+                message == ManageMessageId.ChangePasswordSuccess ? "Đã đổi mật khẩu."
+                : message == ManageMessageId.SetPasswordSuccess ? "Đã tạo mật khẩu."
+                : message == ManageMessageId.SetTwoFactorSuccess ? "Đã cập nhật xác thực hai bước."
+                : message == ManageMessageId.Error ? "Đã xảy ra lỗi. Vui lòng thử lại."
+                : message == ManageMessageId.AddPhoneSuccess ? "Đã thêm số điện thoại."
+                : message == ManageMessageId.RemovePhoneSuccess ? "Đã xóa số điện thoại."
                 : "";
 
             var userId = User.Identity.GetUserId();

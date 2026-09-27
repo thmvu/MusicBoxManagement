@@ -1,75 +1,95 @@
-﻿<!DOCTYPE html>
 @using Microsoft.AspNet.Identity
 @using MusicBoxManagement.Models
 @using MusicBoxManagement.Services
-<html>
+@{
+    var controller = (string)ViewContext.RouteData.Values["controller"];
+    var signedIn = Request.IsAuthenticated;
+    var canDashboard = false;
+    var canReservations = false;
+    var canSessions = false;
+    var canCustomers = false;
+    var canRooms = false;
+    var canRoomTypes = false;
+    var canServices = false;
+    var canUsers = false;
+    if (signedIn)
+    {
+        using (var db = new ApplicationDbContext())
+        {
+            var permissions = new PermissionService(db);
+            var userId = User.Identity.GetUserId();
+            canDashboard = permissions.HasPermission(userId, "Dashboard.View");
+            canReservations = permissions.HasPermission(userId, "Reservation.View");
+            canSessions = permissions.HasPermission(userId, "Session.View");
+            canCustomers = permissions.HasPermission(userId, "Customer.View");
+            canRooms = permissions.HasPermission(userId, "Room.Manage");
+            canRoomTypes = permissions.HasPermission(userId, "RoomType.Edit");
+            canServices = permissions.HasPermission(userId, "Service.Manage");
+            canUsers = permissions.HasPermission(userId, "User.Manage");
+        }
+    }
+    var operationsActive = controller == "Dashboard" || controller == "Reservations" || controller == "RoomSessions" || controller == "Customers";
+    var catalogActive = controller == "Rooms" || controller == "RoomTypes" || controller == "ServiceCatalog";
+}
+<!DOCTYPE html>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - Music Box</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title | Music Box</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
-
 </head>
 <body>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
-        <div class="container">
-            @Html.ActionLink("Music Box", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Xem phòng", "Index", "PublicRooms", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Tra cứu đặt phòng", "Index", "GuestBookings", new { area = "" }, new { @class = "nav-link" })</li>
-                    @if (Request.IsAuthenticated)
-                    {
-                        using (var db = new ApplicationDbContext())
+    <a class="skip-link" href="#main-content">Đến nội dung chính</a>
+    <header class="site-header">
+        <nav class="navbar navbar-expand-lg site-nav" aria-label="Điều hướng chính">
+            <div class="container-fluid nav-inner">
+                @Html.ActionLink("MUSIC BOX", "Index", "Home", new { area = "" }, new { @class = "navbar-brand brand-wordmark" })
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavigation" aria-controls="mainNavigation" aria-expanded="false" aria-label="Mở menu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="mainNavigation">
+                    <ul class="navbar-nav site-nav-links">
+                        <li class="nav-item">@Html.ActionLink("Xem phòng", "Index", "PublicRooms", null, new { @class = "nav-link" + (controller == "PublicRooms" ? " active" : "") })</li>
+                        <li class="nav-item">@Html.ActionLink("Tra cứu đặt phòng", "Index", "GuestBookings", null, new { @class = "nav-link" + (controller == "GuestBookings" ? " active" : "") })</li>
+                        @if (canDashboard || canReservations || canSessions || canCustomers)
                         {
-                            if (new PermissionService(db).HasPermission(User.Identity.GetUserId(), "User.Manage"))
-                            {
-                                <li>@Html.ActionLink("Tài khoản", "Index", "Users", new { area = "" }, new { @class = "nav-link" })</li>
-                            }
-                            if (new PermissionService(db).HasPermission(User.Identity.GetUserId(), "RoomType.Edit"))
-                            {
-                                <li>@Html.ActionLink("Loại phòng", "Index", "RoomTypes", new { area = "" }, new { @class = "nav-link" })</li>
-                            }
-                            if (new PermissionService(db).HasPermission(User.Identity.GetUserId(), "Room.Manage"))
-                            {
-                                <li>@Html.ActionLink("Phòng", "Index", "Rooms", new { area = "" }, new { @class = "nav-link" })</li>
-                            }
-                            if (new PermissionService(db).HasPermission(User.Identity.GetUserId(), "Customer.View"))
-                            {
-                                <li>@Html.ActionLink("Khách hàng", "Index", "Customers", new { area = "" }, new { @class = "nav-link" })</li>
-                            }
-                            if (new PermissionService(db).HasPermission(User.Identity.GetUserId(), "Reservation.View"))
-                            {
-                                <li>@Html.ActionLink("Đặt phòng", "Index", "Reservations", new { area = "" }, new { @class = "nav-link" })</li>
-                            }
-                            if (new PermissionService(db).HasPermission(User.Identity.GetUserId(), "Session.View"))
-                            {
-                                <li>@Html.ActionLink("Phiên sử dụng", "Index", "RoomSessions", new { area = "" }, new { @class = "nav-link" })</li>
-                            }
-                            if (new PermissionService(db).HasPermission(User.Identity.GetUserId(), "Service.Manage"))
-                            {
-                                <li>@Html.ActionLink("Dịch vụ", "Index", "ServiceCatalog", new { area = "" }, new { @class = "nav-link" })</li>
-                            }
+                            <li class="nav-item dropdown">
+                                <button class="nav-link dropdown-toggle @(operationsActive ? "active" : "")" type="button" data-bs-toggle="dropdown" aria-expanded="false">Vận hành</button>
+                                <ul class="dropdown-menu">
+                                    @if (canDashboard) { <li>@Html.ActionLink("Tổng quan", "Index", "Dashboard", null, new { @class = "dropdown-item" })</li> }
+                                    @if (canReservations) { <li>@Html.ActionLink("Đặt phòng", "Index", "Reservations", null, new { @class = "dropdown-item" })</li> }
+                                    @if (canSessions) { <li>@Html.ActionLink("Phiên sử dụng", "Index", "RoomSessions", null, new { @class = "dropdown-item" })</li> }
+                                    @if (canCustomers) { <li>@Html.ActionLink("Khách hàng", "Index", "Customers", null, new { @class = "dropdown-item" })</li> }
+                                </ul>
+                            </li>
                         }
-                    }
-                </ul>
-                 @Html.Partial("_LoginPartial")
+                        @if (canRooms || canRoomTypes || canServices)
+                        {
+                            <li class="nav-item dropdown">
+                                <button class="nav-link dropdown-toggle @(catalogActive ? "active" : "")" type="button" data-bs-toggle="dropdown" aria-expanded="false">Danh mục</button>
+                                <ul class="dropdown-menu">
+                                    @if (canRooms) { <li>@Html.ActionLink("Phòng", "Index", "Rooms", null, new { @class = "dropdown-item" })</li> }
+                                    @if (canRoomTypes) { <li>@Html.ActionLink("Loại phòng", "Index", "RoomTypes", null, new { @class = "dropdown-item" })</li> }
+                                    @if (canServices) { <li>@Html.ActionLink("Dịch vụ", "Index", "ServiceCatalog", null, new { @class = "dropdown-item" })</li> }
+                                </ul>
+                            </li>
+                        }
+                        @if (canUsers)
+                        {
+                            <li class="nav-item">@Html.ActionLink("Tài khoản", "Index", "Users", null, new { @class = "nav-link" + (controller == "Users" ? " active" : "") })</li>
+                        }
+                    </ul>
+                    @Html.Partial("_LoginPartial")
+                </div>
             </div>
-        </div>
-    </nav>
-    <div class="container body-content">
+        </nav>
+    </header>
+    <div id="main-content" class="container-fluid body-content">
         @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - Music Box</p>
-        </footer>
     </div>
-
+    <footer class="site-footer"><div class="container-fluid">Music Box <span>Quản lý phòng và dịch vụ</span><span>&copy; @DateTime.Now.Year</span></div></footer>
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)

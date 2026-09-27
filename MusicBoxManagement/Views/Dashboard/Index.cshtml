@@ -1,0 +1,71 @@
+@using System.Globalization
+@using System.Linq
+@model MusicBoxManagement.Models.DashboardViewModel
+@{
+    ViewBag.Title = "Tổng quan vận hành";
+    var zone = TimeSpan.FromHours(7);
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+}
+
+<main class="dashboard-page">
+    <header class="page-heading dashboard-heading">
+        <div>
+            <p class="page-context">Music Box / Vận hành</p>
+            <h1>Tổng quan hôm nay</h1>
+            <p class="page-subtitle">Trạng thái phòng và các việc cần theo dõi trong ngày.</p>
+        </div>
+        <div class="dashboard-refresh">
+            <span>Cập nhật @Model.UpdatedAt.ToOffset(zone).ToString("HH:mm, dd/MM/yyyy", vi)</span>
+            @Html.ActionLink("Làm mới", "Index", "Dashboard", null, new { @class = "btn btn-outline-primary" })
+        </div>
+    </header>
+
+    <section class="dashboard-metrics" aria-label="Số liệu vận hành">
+        <div class="metric"><span>Phòng đang sử dụng</span><strong>@Model.OccupiedRooms<span>/@Model.TotalRooms</span></strong><small>phòng hoạt động</small></div>
+        <div class="metric"><span>Đặt phòng hôm nay</span><strong>@Model.TodayReservations</strong><small>không tính đã hủy, không đến</small></div>
+        <div class="metric"><span>Phiên đang mở</span><strong>@Model.ActiveSessions</strong><small>đang phục vụ</small></div>
+        <div class="metric"><span>Đơn món chờ xử lý</span><strong>@Model.PendingOrders</strong><small>từ khách đang sử dụng phòng</small></div>
+    </section>
+
+    <div class="dashboard-columns">
+        <section class="dashboard-section" aria-labelledby="alert-title">
+            <div class="section-heading"><h2 id="alert-title">Cần chú ý</h2><span>@Model.Alerts.Count việc</span></div>
+            @if (!Model.Alerts.Any())
+            {
+                <p class="empty-state">Chưa có cảnh báo cần xử lý lúc này.</p>
+            }
+            else
+            {
+                <ul class="alert-list">
+                    @foreach (var alert in Model.Alerts)
+                    {
+                        <li><div><strong>@alert.Title</strong><p>@alert.Detail</p></div>
+                        @if (!string.IsNullOrEmpty(alert.ActionUrl)) { <a href="@alert.ActionUrl">@alert.ActionText</a> }
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+        <section class="dashboard-section" aria-labelledby="session-title">
+            <div class="section-heading"><h2 id="session-title">Phòng đang phục vụ</h2>@Html.ActionLink("Xem tất cả", "Index", "RoomSessions")</div>
+            @if (!Model.Sessions.Any())
+            {
+                <p class="empty-state">Hiện chưa có phiên đang hoạt động.</p>
+            }
+            else
+            {
+                <div class="table-responsive"><table class="table dashboard-table">
+                    <thead><tr><th>Phòng</th><th>Khách</th><th>Bắt đầu</th><th></th></tr></thead>
+                    <tbody>
+                    @foreach (var session in Model.Sessions)
+                    {
+                        <tr><td><strong>@session.RoomName</strong></td><td>@session.CustomerName</td>
+                        <td>@session.ActualStartTime.ToOffset(zone).ToString("HH:mm", vi)</td>
+                        <td>@Html.ActionLink("Chi tiết", "Details", "RoomSessions", new { id = session.RoomSessionId }, null)</td></tr>
+                    }
+                    </tbody>
+                </table></div>
+            }
+        </section>
+    </div>
+</main>

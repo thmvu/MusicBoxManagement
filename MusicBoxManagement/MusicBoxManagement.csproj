@@ -179,6 +179,7 @@
     <Compile Include="Services\PermissionService.cs" />
     <Compile Include="Services\UserManagementService.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\DashboardController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\RoomTypesController.cs" />
     <Compile Include="Controllers\RoomsController.cs" />
@@ -205,6 +206,7 @@
     <Compile Include="Models\Reservation.cs" />
     <Compile Include="Models\RoomSession.cs" />
     <Compile Include="Models\Order.cs" />
+    <Compile Include="Models\DashboardViewModel.cs" />
     <Compile Include="Models\RoomViewModels.cs" />
     <Compile Include="Models\RoomTypeViewModels.cs" />
     <Compile Include="Services\RoomTypeService.cs" />
@@ -327,6 +329,7 @@
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Dashboard\Index.cshtml" />
     <Content Include="Views\Account\_ExternalLoginsListPartial.cshtml" />
     <Content Include="Views\Account\ConfirmEmail.cshtml" />
     <Content Include="Views\Account\ExternalLoginConfirmation.cshtml" />

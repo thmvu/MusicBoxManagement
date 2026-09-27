@@ -1,9 +1,6 @@
-﻿@{
-    ViewBag.Title = "About";
-}
-<main aria-labelledby="title">
-    <h2 id="title">@ViewBag.Title.</h2>
-    <h3>@ViewBag.Message</h3>
-
-    <p>Use this area to provide additional information.</p>
+@{ ViewBag.Title = "Giới thiệu"; }
+<main class="py-4">
+    <h1>Giới thiệu Music Box</h1>
+    <p>Trang quản lý phòng, đặt trước và dịch vụ của Music Box.</p>
+    @Html.ActionLink("Xem phòng", "Index", "PublicRooms")
 </main>
