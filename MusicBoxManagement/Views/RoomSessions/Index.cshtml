@@ -1,0 +1,40 @@
+@using System.Collections.Generic
+@using System.Globalization
+@using System.Linq
+@model IList<MusicBoxManagement.Models.RoomSessionListItemViewModel>
+@{
+    ViewBag.Title = "Phiên sử dụng";
+    var offset = TimeSpan.FromHours(7);
+    var vietnamese = CultureInfo.GetCultureInfo("vi-VN");
+}
+
+<main class="py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">Phiên đang hoạt động</h1>
+        @if (ViewBag.CanWalkIn == true)
+        {
+            @Html.ActionLink("Nhận khách trực tiếp", "WalkIn", "RoomSessions", null, new { @class = "btn btn-primary" })
+        }
+    </div>
+    @if (!Model.Any())
+    {
+        <p>Hiện không có phiên đang hoạt động.</p>
+    }
+    else
+    {
+        <div class="table-responsive"><table class="table table-striped align-middle">
+            <thead><tr><th>Phòng</th><th>Khách</th><th>Bắt đầu</th><th>Nguồn</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.RoomName</td><td>@item.CustomerName</td>
+                        <td>@item.ActualStartTime.ToOffset(offset).ToString("dd/MM/yyyy HH:mm", vietnamese)</td>
+                        <td>@(item.FromReservation ? "Đặt trước" : "Khách trực tiếp")</td>
+                        <td>@Html.ActionLink("Chi tiết", "Details", new { id = item.RoomSessionId })</td>
+                    </tr>
+                }
+            </tbody>
+        </table></div>
+    }
+</main>

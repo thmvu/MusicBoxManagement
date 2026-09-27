@@ -173,6 +173,7 @@
     <Compile Include="Controllers\PublicRoomsController.cs" />
     <Compile Include="Controllers\GuestBookingsController.cs" />
     <Compile Include="Controllers\ReservationsController.cs" />
+    <Compile Include="Controllers\RoomSessionsController.cs" />
     <Compile Include="Controllers\ServiceCatalogController.cs" />
     <Compile Include="Authorization\PermissionAuthorizeAttribute.cs" />
     <Compile Include="Services\PermissionService.cs" />
@@ -192,6 +193,7 @@
     <Compile Include="Models\PublicRoomViewModel.cs" />
     <Compile Include="Models\GuestBookingViewModels.cs" />
     <Compile Include="Models\ReservationViewModels.cs" />
+    <Compile Include="Models\RoomSessionViewModels.cs" />
     <Compile Include="Models\GuestScheduleSlot.cs" />
     <Compile Include="Models\Service.cs" />
     <Compile Include="Models\ServiceViewModels.cs" />
@@ -219,6 +221,7 @@
     <Compile Include="Services\NoShowBackgroundWorker.cs" />
     <Compile Include="Services\CheckInRules.cs" />
     <Compile Include="Services\RoomSessionService.cs" />
+    <Compile Include="Services\WalkInRules.cs" />
     <Compile Include="Services\GuestBookingDateParser.cs" />
     <Compile Include="Services\GuestRoomScheduleRules.cs" />
     <Compile Include="Services\GuestRoomScheduleService.cs" />
@@ -355,6 +358,9 @@
     <Content Include="Views\Reservations\Index.cshtml" />
     <Content Include="Views\Reservations\Details.cshtml" />
     <Content Include="Views\Reservations\Create.cshtml" />
+    <Content Include="Views\RoomSessions\Index.cshtml" />
+    <Content Include="Views\RoomSessions\Details.cshtml" />
+    <Content Include="Views\RoomSessions\WalkIn.cshtml" />
     <Content Include="Views\ServiceCatalog\Index.cshtml" />
     <Content Include="Views\ServiceCatalog\Create.cshtml" />
     <Content Include="Views\ServiceCatalog\Edit.cshtml" />

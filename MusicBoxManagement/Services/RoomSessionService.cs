@@ -24,6 +24,24 @@ namespace MusicBoxManagement.Services
         }
     }
 
+    public sealed class WalkInResult
+    {
+        public bool Succeeded { get; private set; }
+        public int RoomSessionId { get; private set; }
+        public DateTimeOffset WarningEndUtc { get; private set; }
+        public string Error { get; private set; }
+
+        public static WalkInResult Success(int sessionId, DateTimeOffset warningEndUtc)
+        {
+            return new WalkInResult { Succeeded = true, RoomSessionId = sessionId, WarningEndUtc = warningEndUtc };
+        }
+
+        public static WalkInResult Failure(string error)
+        {
+            return new WalkInResult { Error = error };
+        }
+    }
+
     public sealed class RoomSessionService
     {
         private readonly ApplicationDbContext db;
@@ -113,6 +131,93 @@ namespace MusicBoxManagement.Services
                 return existing != null ? CheckInResult.Success(existing.RoomSessionId)
                     : CheckInResult.Failure("Dữ liệu vừa thay đổi. Vui lòng tải lại và thử lại.");
             }
+        }
+
+        public WalkInResult WalkIn(int roomId, string fullName, string phoneNumber, string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                return WalkInResult.Failure("Thiếu nhân viên thực hiện.");
+            var input = ReservationInputRules.Validate(fullName, phoneNumber);
+            if (!input.IsValid) return WalkInResult.Failure(input.Error);
+
+            try
+            {
+                using (var transaction = db.Database.BeginTransaction(IsolationLevel.Serializable))
+                {
+                    if (!db.Users.Any(user => user.Id == userId && user.IsActive))
+                        return WalkInResult.Failure("Nhân viên không còn hoạt động.");
+                    var room = db.Rooms.Include("RoomType").SingleOrDefault(item => item.RoomId == roomId);
+                    if (room == null) return WalkInResult.Failure("Không tìm thấy phòng.");
+
+                    var customer = db.Customers.SingleOrDefault(item => item.PhoneNumber == input.PhoneNumber);
+                    if (customer == null)
+                    {
+                        customer = new Customer { FullName = input.FullName, PhoneNumber = input.PhoneNumber };
+                        db.Customers.Add(customer);
+                        db.SaveChanges();
+                    }
+
+                    var sessions = db.RoomSessions.AsNoTracking()
+                        .Where(item => item.Status == RoomSessionStatuses.Active &&
+                            (item.RoomId == roomId || item.CustomerId == customer.CustomerId))
+                        .ToList();
+                    var reservations = db.Reservations.AsNoTracking()
+                        .Where(item => item.Status == ReservationStatuses.Confirmed &&
+                            (item.RoomId == roomId || item.CustomerId == customer.CustomerId))
+                        .ToList();
+                    var now = clock.UtcNow;
+                    var check = WalkInRules.Validate(roomId, customer.CustomerId, now,
+                        room.IsActive, reservations, sessions);
+                    if (!check.IsValid) return WalkInResult.Failure(check.Error);
+
+                    var session = new RoomSession
+                    {
+                        RoomId = roomId,
+                        CustomerId = customer.CustomerId,
+                        ActualStartTime = now,
+                        Status = RoomSessionStatuses.Active,
+                        HourlyRate = room.RoomType.PricePerHour,
+                        RoomCodeSnapshot = room.RoomCode,
+                        RoomTypeCodeSnapshot = room.RoomType.Code,
+                        RoomTypeNameSnapshot = room.RoomType.Name
+                    };
+                    db.RoomSessions.Add(session);
+                    db.SaveChanges();
+                    db.AuditLogs.Add(new AuditLog
+                    {
+                        ActorType = "Staff",
+                        UserId = userId,
+                        Action = "WalkIn",
+                        EntityName = "RoomSession",
+                        EntityId = session.RoomSessionId.ToString(),
+                        Description = "Nhận khách trực tiếp ở phòng " + room.RoomCode,
+                        CreatedAt = now
+                    });
+                    db.SaveChanges();
+                    transaction.Commit();
+                    return WalkInResult.Success(session.RoomSessionId, check.WarningEndUtc);
+                }
+            }
+            catch (Exception error)
+            {
+                if (!IsConcurrentChange(error)) throw;
+                return WalkInResult.Failure("Dữ liệu vừa thay đổi. Vui lòng tải lại và thử lại.");
+            }
+        }
+
+        public DateTimeOffset? GetWalkInWarning(int sessionId)
+        {
+            var session = db.RoomSessions.AsNoTracking()
+                .SingleOrDefault(item => item.RoomSessionId == sessionId);
+            if (session == null || session.Status != RoomSessionStatuses.Active || session.ReservationId.HasValue)
+                return null;
+
+            var reservations = db.Reservations.AsNoTracking()
+                .Where(item => item.Status == ReservationStatuses.Confirmed &&
+                    (item.RoomId == session.RoomId || item.CustomerId == session.CustomerId))
+                .ToList();
+            return WalkInRules.GetWarningEnd(session.RoomId, session.CustomerId,
+                session.ActualStartTime, clock.UtcNow, reservations);
         }
 
         private static bool IsConcurrentChange(Exception error)

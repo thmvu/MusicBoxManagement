@@ -1,0 +1,33 @@
+@using System.Globalization
+@model MusicBoxManagement.Models.RoomSessionDetailsViewModel
+@{
+    ViewBag.Title = "Chi tiết phiên sử dụng";
+    var offset = TimeSpan.FromHours(7);
+    var vietnamese = CultureInfo.GetCultureInfo("vi-VN");
+}
+
+<main class="py-4">
+    <p>@Html.ActionLink("← Phiên đang hoạt động", "Index", "RoomSessions")</p>
+    <h1>Phiên sử dụng #@Model.RoomSessionId</h1>
+    @if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+    <dl class="row">
+        <dt class="col-sm-3">Phòng</dt><dd class="col-sm-9">@Model.RoomName (@Model.RoomCodeSnapshot · @Model.RoomTypeNameSnapshot)</dd>
+        <dt class="col-sm-3">Khách</dt><dd class="col-sm-9">@Model.CustomerName · @Model.PhoneNumber</dd>
+        <dt class="col-sm-3">Bắt đầu thực tế</dt><dd class="col-sm-9">@Model.ActualStartTime.ToOffset(offset).ToString("dd/MM/yyyy HH:mm", vietnamese)</dd>
+        <dt class="col-sm-3">Giá đã chốt</dt><dd class="col-sm-9">@Model.HourlyRate.ToString("N0", vietnamese) đ/giờ</dd>
+        <dt class="col-sm-3">Trạng thái</dt><dd class="col-sm-9">@(Model.Status == "Active" ? "Đang sử dụng" : "Hoàn tất")</dd>
+        @if (Model.ReservationId.HasValue)
+        {
+            <dt class="col-sm-3">Nguồn</dt><dd class="col-sm-9">Đặt trước #@Model.ReservationId</dd>
+            <dt class="col-sm-3">Dự kiến kết thúc</dt><dd class="col-sm-9">@Model.ExpectedEndTime.Value.ToOffset(offset).ToString("dd/MM/yyyy HH:mm", vietnamese)</dd>
+        }
+        else
+        {
+            <dt class="col-sm-3">Nguồn</dt><dd class="col-sm-9">Khách trực tiếp</dd>
+            if (Model.WarningEndUtc.HasValue)
+            {
+                <dt class="col-sm-3">Giờ cần trả phòng</dt><dd class="col-sm-9">@Model.WarningEndUtc.Value.ToOffset(offset).ToString("dd/MM/yyyy HH:mm", vietnamese) <span class="text-muted">(cảnh báo, cập nhật theo booking mới)</span></dd>
+            }
+        }
+    </dl>
+</main>

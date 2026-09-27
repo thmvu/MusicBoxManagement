@@ -1,0 +1,37 @@
+@using System.Web.Mvc
+@model MusicBoxManagement.Models.WalkInFormViewModel
+@{
+    ViewBag.Title = "Nhận khách trực tiếp";
+}
+
+<main class="py-4">
+    <p>@Html.ActionLink("← Phiên đang hoạt động", "Index", "RoomSessions")</p>
+    <h1>Nhận khách trực tiếp</h1>
+    <p class="text-muted">Không cần chọn thời lượng. Sau khi nhận, hệ thống hiển thị mốc cần trả phòng theo ca và booking kế tiếp.</p>
+    @if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+    @using (Html.BeginForm("WalkIn", "RoomSessions", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+        <div class="row g-3">
+            <div class="col-md-6">
+                @Html.LabelFor(model => model.RoomId, "Phòng", new { @class = "form-label" })
+                @Html.DropDownListFor(model => model.RoomId, (SelectList)ViewBag.Rooms, "Chọn phòng", new { @class = "form-select" })
+                @Html.ValidationMessageFor(model => model.RoomId, "", new { @class = "text-danger" })
+            </div>
+            <div class="col-md-6">
+                @Html.LabelFor(model => model.FullName, "Họ tên khách", new { @class = "form-label" })
+                @Html.TextBoxFor(model => model.FullName, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.FullName, "", new { @class = "text-danger" })
+            </div>
+            <div class="col-md-6">
+                @Html.LabelFor(model => model.PhoneNumber, "Số điện thoại", new { @class = "form-label" })
+                @Html.TextBoxFor(model => model.PhoneNumber, new { @class = "form-control", type = "tel" })
+                @Html.ValidationMessageFor(model => model.PhoneNumber, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-4">Xác nhận nhận khách</button>
+    }
+</main>
+
+@section Scripts { @Scripts.Render("~/bundles/jqueryval") }
