@@ -107,6 +107,22 @@ input, select, textarea { max-width: 100%; }
     .site-footer span:last-child { margin-left: 0; }
 }
 
+/* Room calendar */
+.calendar-page { max-width: 1500px; margin: 0 auto; }
+.calendar-toolbar { display: flex; align-items: center; gap: 15px; padding: 20px 0; border-top: 1px solid var(--line); }
+.calendar-toolbar label { font-weight: 650; }
+.calendar-toolbar select { width: min(260px, 55vw); }
+.calendar-toolbar span, .calendar-help { color: var(--ink-soft); font-size: .9rem; }
+.calendar-help { margin-top: 16px; }
+.calendar-page .fc { --fc-border-color: #d8dbd7; --fc-today-bg-color: #f4f5f1; }
+.calendar-page .fc-button-primary { background: #344d44; border-color: #344d44; }
+.calendar-page .fc-button-primary:hover, .calendar-page .fc-button-primary:not(:disabled).fc-button-active { background: #22382f; border-color: #22382f; }
+.calendar-page .fc-event { border-radius: 2px; padding: 2px 4px; }
+.calendar-page .calendar-reserved { background: #526c79; border-color: #526c79; }
+.calendar-page .calendar-active { background: #7a6545; border-color: #7a6545; }
+.calendar-page .calendar-completed { background: #69766d; border-color: #69766d; }
+.calendar-page .calendar-break { background: #e9e7e1; }
+@media (max-width: 700px) { .calendar-toolbar { flex-wrap: wrap; } .calendar-toolbar span { width: 100%; } .calendar-page .fc-toolbar { flex-wrap: wrap; gap: 8px; } .calendar-page .fc-toolbar-title { font-size: 1.2rem; } }
 /* Checkout and invoices */
 .checkout-page { max-width: 850px; }
 .checkout-summary, .checkout-confirm { border-top: 2px solid var(--ink); padding: 20px 0 26px; margin-top: 25px; }

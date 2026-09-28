@@ -1,0 +1,74 @@
+@model MusicBoxManagement.Models.CalendarViewModel
+@{
+    ViewBag.Title = "Lịch phòng";
+}
+<main class="calendar-page py-4">
+    <header class="page-heading">
+        <div>
+            <p class="page-context">Music Box / Vận hành</p>
+            <h1>Lịch phòng</h1>
+            <p class="page-subtitle">Đặt phòng và thời gian sử dụng thực tế. Giờ Việt Nam, 09:00–23:00.</p>
+        </div>
+    </header>
+    <div class="calendar-toolbar">
+        <label for="calendarRoom">Phòng</label>
+        <select id="calendarRoom" class="form-select">
+            <option value="">Tất cả phòng</option>
+            @foreach (var room in Model.Rooms)
+            {
+                <option value="@room.RoomId" @(Model.RoomId == room.RoomId ? "selected" : "")>@room.RoomCode</option>
+            }
+        </select>
+        <span>Đã đặt · Đang sử dụng · Đã hoàn tất</span>
+    </div>
+    <div id="roomCalendar" data-events-url="@Url.Action("Events", "Calendar")"></div>
+    <p class="calendar-help">Vùng 12:00–13:00 là giờ nghỉ. Chọn một lịch để xem chi tiết; lịch không hỗ trợ kéo thả để sửa đặt phòng.</p>
+</main>
+@section scripts {
+    <script src="@Url.Content("~/Scripts/fullcalendar-6.1.20.global.min.js")"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var element = document.getElementById('roomCalendar');
+            var room = document.getElementById('calendarRoom');
+            var calendar = new FullCalendar.Calendar(element, {
+                initialView: 'timeGridDay',
+                locale: 'vi',
+                timeZone: 'Asia/Ho_Chi_Minh',
+                firstDay: 1,
+                height: 'auto',
+                slotMinTime: '09:00:00',
+                slotMaxTime: '23:00:00',
+                slotDuration: '00:30:00',
+                allDaySlot: false,
+                nowIndicator: true,
+                editable: false,
+                selectable: false,
+                headerToolbar: { left: 'prev,next today', center: 'title', right: 'timeGridDay,timeGridWeek' },
+                buttonText: { today: 'Hôm nay', day: 'Ngày', week: 'Tuần' },
+                events: function (info, success, failure) {
+                    var url = element.dataset.eventsUrl + '?start=' + encodeURIComponent(info.startStr) +
+                        '&end=' + encodeURIComponent(info.endStr) +
+                        (room.value ? '&roomId=' + encodeURIComponent(room.value) : '');
+                    fetch(url, { credentials: 'same-origin' })
+                        .then(function (response) { if (!response.ok) throw new Error('Không tải được lịch.'); return response.json(); })
+                        .then(success).catch(failure);
+                },
+                eventSources: [{
+                    events: function (info, success) {
+                        var breaks = [];
+                        var day = new Date(info.start);
+                        while (day < info.end) {
+                            var date = day.toISOString().slice(0, 10);
+                            breaks.push({ start: date + 'T12:00:00', end: date + 'T13:00:00',
+                                display: 'background', className: 'calendar-break' });
+                            day.setUTCDate(day.getUTCDate() + 1);
+                        }
+                        success(breaks);
+                    }
+                }]
+            });
+            calendar.render();
+            room.addEventListener('change', function () { calendar.refetchEvents(); });
+        });
+    </script>
+}

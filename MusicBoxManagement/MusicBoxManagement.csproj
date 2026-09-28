@@ -173,6 +173,7 @@
     <Compile Include="Controllers\PublicRoomsController.cs" />
     <Compile Include="Controllers\GuestBookingsController.cs" />
     <Compile Include="Controllers\CheckoutController.cs" />
+    <Compile Include="Controllers\CalendarController.cs" />
     <Compile Include="Controllers\InvoicesController.cs" />
     <Compile Include="Controllers\OrdersController.cs" />
     <Compile Include="Controllers\ReservationsController.cs" />
@@ -212,6 +213,7 @@
     <Compile Include="Models\Invoice.cs" />
     <Compile Include="Models\OrderViewModels.cs" />
     <Compile Include="Models\CheckoutViewModels.cs" />
+    <Compile Include="Models\CalendarViewModels.cs" />
     <Compile Include="Models\DashboardViewModel.cs" />
     <Compile Include="Models\RoomViewModels.cs" />
     <Compile Include="Models\RoomTypeViewModels.cs" />
@@ -237,6 +239,7 @@
     <Compile Include="Services\OrderReadService.cs" />
     <Compile Include="Services\BillingService.cs" />
     <Compile Include="Services\CheckoutService.cs" />
+    <Compile Include="Services\CalendarService.cs" />
     <Compile Include="Services\GuestBookingDateParser.cs" />
     <Compile Include="Services\GuestRoomScheduleRules.cs" />
     <Compile Include="Services\GuestRoomScheduleService.cs" />
@@ -313,6 +316,7 @@
     <Content Include="Content\Site.css" />
     <Content Include="Content\images\landing-room.png" />
     <Content Include="Scripts\bootstrap.bundle.js" />
+      <Content Include="Scripts\fullcalendar-6.1.20.global.min.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
     <Content Include="Scripts\bootstrap.esm.min.js" />
@@ -381,6 +385,7 @@
     <Content Include="Views\PublicRooms\BookingSuccess.cshtml" />
     <Content Include="Views\GuestBookings\Index.cshtml" />
     <Content Include="Views\Checkout\Index.cshtml" />
+      <Content Include="Views\Calendar\Index.cshtml" />
     <Content Include="Views\Invoices\Index.cshtml" />
     <Content Include="Views\Invoices\Details.cshtml" />
     <Content Include="Views\Invoices\Print.cshtml" />
