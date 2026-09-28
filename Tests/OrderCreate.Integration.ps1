@@ -1,13 +1,48 @@
-﻿param([string]$AssemblyPath = "$PSScriptRoot\..\MusicBoxManagement\bin\MusicBoxManagement.dll")
+﻿#requires -PSEdition Desktop
+param([string]$AssemblyPath = "$PSScriptRoot\..\MusicBoxManagement\bin\MusicBoxManagement.dll", [string]$SqlServer = '.')
 $ErrorActionPreference = 'Stop'
 Add-Type -Path (Resolve-Path $AssemblyPath).Path
 Add-Type -TypeDefinition @'
 using System;
+using System.Threading;
+using System.Threading.Tasks;
+using MusicBoxManagement.Models;
 using MusicBoxManagement.Services;
 public sealed class OrderTestClock : IClock { public DateTimeOffset UtcNow { get; set; } }
-'@ -ReferencedAssemblies (Resolve-Path $AssemblyPath).Path
+public static class OrderTransitionRace
+{
+    public static bool[] Run(string connectionString, int orderId, string staffId, string phone, DateTimeOffset now)
+    {
+        using (var ready = new CountdownEvent(2))
+        using (var start = new ManualResetEventSlim(false))
+        {
+            var confirm = Task.Run(() =>
+            {
+                using (var context = new ApplicationDbContext(connectionString))
+                {
+                    ready.Signal(); start.Wait();
+                    return new OrderService(context, new OrderTestClock { UtcNow = now })
+                        .ConfirmByStaff(orderId, staffId).Succeeded;
+                }
+            });
+            var cancel = Task.Run(() =>
+            {
+                using (var context = new ApplicationDbContext(connectionString))
+                {
+                    ready.Signal(); start.Wait();
+                    return new OrderService(context, new OrderTestClock { UtcNow = now })
+                        .CancelGuest(orderId, phone).Succeeded;
+                }
+            });
+            ready.Wait(); start.Set();
+            Task.WaitAll(confirm, cancel);
+            return new[] { confirm.Result, cancel.Result };
+        }
+    }
+}
+'@ -ReferencedAssemblies @((Resolve-Path $AssemblyPath).Path, (Resolve-Path "$PSScriptRoot\..\MusicBoxManagement\bin\EntityFramework.dll").Path, (Resolve-Path "$PSScriptRoot\..\MusicBoxManagement\bin\Microsoft.AspNet.Identity.EntityFramework.dll").Path)
 $databaseName = 'MusicBoxOrderTest_' + [Guid]::NewGuid().ToString('N')
-$connectionString = "Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=$databaseName;Integrated Security=True"
+$connectionString = "Data Source=$SqlServer;Initial Catalog=$databaseName;Integrated Security=True"
 function New-Context { [MusicBoxManagement.Models.ApplicationDbContext]::new($connectionString) }
 function Assert-True($condition, $message) { if (!$condition) { throw $message } }
 function Line($id, $qty) {
@@ -74,6 +109,23 @@ try {
         Assert-True ($items[0].ServiceNameSnapshot -eq 'Coca' -and $items[0].UnitPrice -eq 20000) 'Guest snapshot wrong.'
         Assert-True ($items[1].ServiceNameSnapshot -eq 'Snack' -and $items[1].UnitPrice -eq 25000) 'Staff snapshot wrong.'
         Assert-True (@($check.AuditLogs | Where-Object { $_.EntityName -eq 'Order' }).Count -eq 2) 'Order audit missing.'
+        for ($i = 0; $i -lt 101; $i++) {
+            $older = [MusicBoxManagement.Models.Order]::new()
+            $older.RoomSessionId = $session.RoomSessionId
+            $older.Status = 'Cancelled'
+            $older.CreatedAt = $now.AddSeconds($i + 1)
+            $line = [MusicBoxManagement.Models.OrderItem]::new()
+            $line.ServiceId = $food.ServiceId
+            $line.ServiceNameSnapshot = 'Snack'
+            $line.Quantity = 1
+            $line.UnitPrice = 25000
+            [void]$older.Items.Add($line)
+            [void]$check.Orders.Add($older)
+        }
+        [void]$check.SaveChanges()
+        $pendingQueue = @([MusicBoxManagement.Services.OrderReadService]::new($check).PendingQueue())
+        Assert-True ($pendingQueue.Count -eq 1 -and $pendingQueue[0].OrderId -eq $orders[0].OrderId) 'Old Pending order disappeared from staff queue.'
+        Assert-True (@([MusicBoxManagement.Services.OrderReadService]::new($check).ForSession($session.RoomSessionId)).Count -eq 103) 'Session order list was truncated.'
         $check.Services.Find($drink.ServiceId).Price = 30000
         $check.Services.Find($drink.ServiceId).Name = 'New Coca'
         [void]$check.SaveChanges()
@@ -96,9 +148,16 @@ try {
         Assert-True (!$lifecycle.ConfirmByStaff($pending.OrderId, $staff.Id).Succeeded) 'Cancelled order was confirmed.'
         $clock.UtcNow = $now.AddMinutes(90)
         Assert-True (([MusicBoxManagement.Services.BillingService]::new($check, $clock).GetPreview($session.RoomSessionId)).ServiceCharge -eq 250000) 'Cancelled order was counted.'
+        $raceOrder = $lifecycle.CreateGuest($session.RoomSessionId, '0912345678', [MusicBoxManagement.Services.OrderLineInput[]]@((Line $food.ServiceId 1)))
+        Assert-True $raceOrder.Succeeded 'Race test order creation failed.'
+        $race = [OrderTransitionRace]::Run($connectionString, $raceOrder.OrderId, $staff.Id, '0912345678', $clock.UtcNow)
+        Assert-True ($race[0] -ne $race[1]) 'Concurrent Confirm/Cancel did not have exactly one winner.'
+        $check.Entry($check.Orders.Find($raceOrder.OrderId)).Reload()
+        $raceStatus = $check.Orders.Find($raceOrder.OrderId).Status
+        Assert-True (($race[0] -and $raceStatus -eq 'Completed') -or ($race[1] -and $raceStatus -eq 'Cancelled')) 'Race winner and saved status differ.'
     }
     finally { $check.Dispose() }
-    Write-Output 'PASS Order creation, transition, guest ownership, billing preview, snapshot and audit'
+    Write-Output 'PASS Order creation, pending queue, concurrent transition, billing preview, snapshot and audit on SQL Server'
 }
 finally {
     $setup.Dispose()

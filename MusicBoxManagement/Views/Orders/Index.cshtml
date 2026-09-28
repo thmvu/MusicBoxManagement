@@ -3,8 +3,8 @@
 @model IList<MusicBoxManagement.Models.OrderSummaryViewModel>
 @{ ViewBag.Title = "Đơn món"; var vi = CultureInfo.GetCultureInfo("vi-VN"); }
 <main class="py-4">
-    <h1>Đơn món</h1>
-    <p class="text-muted">100 đơn mới nhất@(ViewBag.SessionId == null ? "" : " của phiên #" + ViewBag.SessionId).</p>
+    <h1>@(ViewBag.SessionId == null ? "Đơn món đang chờ" : "Đơn món của phiên #" + ViewBag.SessionId)</h1>
+    <p class="text-muted">@(ViewBag.SessionId == null ? "Các đơn khách gửi cho phiên đang hoạt động, xếp theo thời gian gửi." : "Tất cả đơn món của phiên này.")</p>
     @if (ViewBag.CanCreate && ViewBag.SessionId != null)
     { @Html.ActionLink("Ghi món đã phục vụ", "Create", new { sessionId = ViewBag.SessionId }, new { @class = "btn btn-primary mb-3" }) }
     @if (!Model.Any()) { <p>Chưa có đơn món.</p> }

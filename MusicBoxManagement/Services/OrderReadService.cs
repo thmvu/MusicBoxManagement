@@ -19,6 +19,16 @@ namespace MusicBoxManagement.Services
                 .OrderByDescending(order => order.CreatedAt).ToList().Select(Map).ToList();
         }
 
+        public IList<OrderSummaryViewModel> PendingQueue()
+        {
+            return db.Orders.AsNoTracking()
+                .Where(order => order.Status == OrderStatuses.Pending &&
+                    order.RoomSession.Status == RoomSessionStatuses.Active)
+                .Include(order => order.Items).Include(order => order.RoomSession.Room)
+                .Include(order => order.RoomSession.Customer)
+                .OrderBy(order => order.CreatedAt).ToList().Select(Map).ToList();
+        }
+
         public OrderSummaryViewModel Find(int orderId)
         {
             var order = db.Orders.AsNoTracking().Include(item => item.Items)

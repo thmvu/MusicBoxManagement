@@ -20,10 +20,8 @@ namespace MusicBoxManagement.Controllers
                 ViewBag.CanCreate = Has(db, "Order.Create");
                 ViewBag.CanConfirm = Has(db, "Order.Confirm");
                 ViewBag.CanCancel = Has(db, "Order.Cancel");
-                var ids = db.Orders.AsNoTracking().Where(item => !sessionId.HasValue || item.RoomSessionId == sessionId.Value)
-                    .OrderByDescending(item => item.CreatedAt).Select(item => item.OrderId).Take(100).ToList();
                 var reader = new OrderReadService(db);
-                return View(ids.Select(reader.Find).ToList());
+                return View(sessionId.HasValue ? reader.ForSession(sessionId.Value) : reader.PendingQueue());
             }
         }
 
