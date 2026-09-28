@@ -25,11 +25,13 @@
         @foreach (var customer in Model)
         {
             <tr>
-                <td>@customer.FullName</td>
+                <td>@Html.ActionLink(customer.FullName, "Details", new { id = customer.CustomerId })</td>
                 <td>@customer.PhoneNumber</td>
                 <td>
+                    @Html.ActionLink("Lịch sử", "Details", new { id = customer.CustomerId })
                     @if (ViewBag.CanEdit == true)
                     {
+                        <span> · </span>
                         @Html.ActionLink("Sửa", "Edit", new { id = customer.CustomerId })
                     }
                 </td>

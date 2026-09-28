@@ -1,0 +1,95 @@
+@using System
+@using System.Collections.Generic
+@using System.Globalization
+@model MusicBoxManagement.Models.CustomerDetailsViewModel
+@{
+    ViewBag.Title = "Khách hàng " + Model.FullName;
+    var offset = TimeSpan.FromHours(7);
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+    var statuses = new Dictionary<string, string> {
+        { "Confirmed", "Đã xác nhận" }, { "CheckedIn", "Đã nhận phòng" },
+        { "Completed", "Đã hoàn tất" }, { "Cancelled", "Đã hủy" },
+        { "NoShow", "Không đến" }, { "Active", "Đang sử dụng" }
+    };
+}
+<main class="py-4 customer-history-page">
+    <p>@Html.ActionLink("← Danh sách khách hàng", "Index")</p>
+    <header class="page-heading">
+        <div>
+            <p class="page-context">Music Box / Khách hàng</p>
+            <h1>@Model.FullName</h1>
+            <p class="page-subtitle">@Model.PhoneNumber</p>
+        </div>
+        @if (Model.CanEdit) { @Html.ActionLink("Sửa thông tin", "Edit", new { id = Model.CustomerId }, new { @class = "btn btn-outline-primary" }) }
+    </header>
+    <dl class="row customer-history-summary">
+        <dt class="col-sm-3">Số lần hoàn tất</dt><dd class="col-sm-9">@Model.CompletedSessionCount</dd>
+        <dt class="col-sm-3">Sử dụng gần nhất</dt>
+        <dd class="col-sm-9">@(Model.LastUsedAt.HasValue ? Model.LastUsedAt.Value.ToOffset(offset).ToString("HH:mm dd/MM/yyyy", vi) : "Chưa sử dụng phòng")</dd>
+    </dl>
+
+    @if (Model.CanViewReservations)
+    {
+        <section class="customer-history-section">
+            <h2>Đặt phòng</h2>
+            @if (Model.Reservations.Count == 0) { <p>Chưa có đặt phòng.</p> }
+            else
+            {
+                <div class="table-responsive"><table class="table">
+                    <thead><tr><th>Thời gian</th><th>Phòng</th><th>Trạng thái</th><th></th></tr></thead>
+                    <tbody>
+                        @foreach (var item in Model.Reservations)
+                        {
+                            <tr><td>@item.StartTime.ToOffset(offset).ToString("HH:mm dd/MM/yyyy", vi) – @item.EndTime.ToOffset(offset).ToString("HH:mm dd/MM/yyyy", vi)</td>
+                                <td>@item.RoomCode</td><td>@(statuses.ContainsKey(item.Status) ? statuses[item.Status] : item.Status)</td>
+                                <td>@Html.ActionLink("Xem", "Details", "Reservations", new { id = item.ReservationId }, null)</td></tr>
+                        }
+                    </tbody>
+                </table></div>
+            }
+        </section>
+    }
+    @if (Model.CanViewSessions)
+    {
+        <section class="customer-history-section">
+            <h2>Phiên sử dụng</h2>
+            @if (Model.Sessions.Count == 0) { <p>Chưa có phiên sử dụng.</p> }
+            else
+            {
+                <div class="table-responsive"><table class="table">
+                    <thead><tr><th>Bắt đầu</th><th>Kết thúc</th><th>Phòng</th><th>Trạng thái</th><th></th></tr></thead>
+                    <tbody>
+                        @foreach (var item in Model.Sessions)
+                        {
+                            <tr><td>@item.ActualStartTime.ToOffset(offset).ToString("HH:mm dd/MM/yyyy", vi)</td>
+                                <td>@(item.ActualEndTime.HasValue ? item.ActualEndTime.Value.ToOffset(offset).ToString("HH:mm dd/MM/yyyy", vi) : "Chưa trả")</td>
+                                <td>@item.RoomCode</td><td>@(statuses.ContainsKey(item.Status) ? statuses[item.Status] : item.Status)</td>
+                                <td>@Html.ActionLink("Xem", "Details", "RoomSessions", new { id = item.RoomSessionId }, null)</td></tr>
+                        }
+                    </tbody>
+                </table></div>
+            }
+        </section>
+    }
+    @if (Model.CanViewInvoices)
+    {
+        <section class="customer-history-section">
+            <h2>Hóa đơn</h2>
+            @if (Model.Invoices.Count == 0) { <p>Chưa có hóa đơn.</p> }
+            else
+            {
+                <div class="table-responsive"><table class="table">
+                    <thead><tr><th>Mã hóa đơn</th><th>Ngày thanh toán</th><th>Phòng</th><th class="text-end">Tổng tiền</th></tr></thead>
+                    <tbody>
+                        @foreach (var item in Model.Invoices)
+                        {
+                            <tr><td>@Html.ActionLink(item.InvoiceNumber, "Details", "Invoices", new { id = item.InvoiceId }, null)</td>
+                                <td>@item.PaidAt.ToOffset(offset).ToString("HH:mm dd/MM/yyyy", vi)</td><td>@item.RoomCode</td>
+                                <td class="text-end">@item.TotalAmount.ToString("N0", vi) đ</td></tr>
+                        }
+                    </tbody>
+                </table></div>
+            }
+        </section>
+    }
+</main>

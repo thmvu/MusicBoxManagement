@@ -11,6 +11,23 @@ namespace MusicBoxManagement.Controllers
     public class CustomersController : Controller
     {
         [PermissionAuthorize("Customer.View")]
+        public ActionResult Details(int id)
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                var permissions = new PermissionService(db);
+                var userId = User.Identity.GetUserId();
+                var model = new CustomerHistoryService(db).GetDetails(id,
+                    permissions.HasPermission(userId, "Reservation.View"),
+                    permissions.HasPermission(userId, "Session.View"),
+                    permissions.HasPermission(userId, "Invoice.View"));
+                if (model == null) return HttpNotFound();
+                model.CanEdit = permissions.HasPermission(userId, "Customer.Edit");
+                return View(model);
+            }
+        }
+
+        [PermissionAuthorize("Customer.View")]
         public ActionResult Index(string search)
         {
             using (var db = new ApplicationDbContext())
