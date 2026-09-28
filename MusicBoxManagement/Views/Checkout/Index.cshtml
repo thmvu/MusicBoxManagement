@@ -1,0 +1,42 @@
+@using System.Globalization
+@model MusicBoxManagement.Models.CheckoutPreviewViewModel
+@{
+    ViewBag.Title = "Xác nhận thanh toán";
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+    var offset = TimeSpan.FromHours(7);
+}
+<main class="py-4 checkout-page">
+    <p>@Html.ActionLink("← Về phiên sử dụng", "Details", "RoomSessions", new { id = Model.RoomSessionId }, null)</p>
+    <h1>Xác nhận thanh toán</h1>
+    <p>Phiên #@Model.RoomSessionId · @Model.RoomCode (@Model.RoomTypeName) · @Model.CustomerName</p>
+    @if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
+    <section class="checkout-summary" aria-labelledby="checkout-summary-title">
+        <h2 id="checkout-summary-title">Tiền tạm tính</h2>
+        <p class="text-muted">Tính lúc @Model.Billing.UpdatedAt.ToOffset(offset).ToString("HH:mm:ss dd/MM/yyyy", vi). Số tiền cuối sẽ được server tính lại khi bạn xác nhận.</p>
+        <dl class="row">
+            <dt class="col-sm-5">Bắt đầu</dt><dd class="col-sm-7">@Model.Billing.ActualStartTime.ToOffset(offset).ToString("HH:mm dd/MM/yyyy", vi)</dd>
+            <dt class="col-sm-5">Đã sử dụng</dt><dd class="col-sm-7">@Model.Billing.UsedMinutes.ToString("N1", vi) phút</dd>
+            <dt class="col-sm-5">Giá phòng</dt><dd class="col-sm-7">@Model.Billing.HourlyRate.ToString("N0", vi) đ/giờ</dd>
+            <dt class="col-sm-5">Tiền phòng</dt><dd class="col-sm-7">@Model.Billing.RoomCharge.ToString("N0", vi) đ</dd>
+            <dt class="col-sm-5">Món đã phục vụ</dt><dd class="col-sm-7">@Model.Billing.ServiceCharge.ToString("N0", vi) đ</dd>
+            <dt class="col-sm-5 checkout-total">Tổng tạm tính</dt><dd class="col-sm-7 checkout-total">@Model.Billing.TotalAmount.ToString("N0", vi) đ</dd>
+        </dl>
+        @if (Model.PendingOrderCount > 0)
+        {
+            <p class="checkout-note">Có @Model.PendingOrderCount đơn món đang chờ. Chúng sẽ được hủy khi checkout thành công và không tính tiền.</p>
+        }
+        <a class="btn btn-outline-secondary" href="@Url.Action("Index", new { sessionId = Model.RoomSessionId })">Tính lại tiền tạm tính</a>
+    </section>
+    <section class="checkout-confirm" aria-labelledby="payment-title">
+        <h2 id="payment-title">Xác nhận đã nhận tiền</h2>
+        <p>Đối chiếu số tiền thực nhận trước khi hoàn tất phiên. Ứng dụng chỉ ghi nhận xác nhận thủ công.</p>
+        @using (Html.BeginForm("Confirm", "Checkout", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="sessionId" value="@Model.RoomSessionId" />
+            <div class="form-check"><input class="form-check-input" type="radio" id="payment-cash" name="paymentMethod" value="Cash" required checked /><label class="form-check-label" for="payment-cash">Tiền mặt</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" id="payment-transfer" name="paymentMethod" value="BankTransfer" /><label class="form-check-label" for="payment-transfer">Chuyển khoản</label></div>
+            <button type="submit" class="btn btn-primary mt-3">Đã nhận tiền, hoàn tất phiên</button>
+        }
+    </section>
+</main>

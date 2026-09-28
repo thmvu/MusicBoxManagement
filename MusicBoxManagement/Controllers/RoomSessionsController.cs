@@ -67,6 +67,12 @@ namespace MusicBoxManagement.Controllers
                 item.CanViewOrders = permissions.HasPermission(User.Identity.GetUserId(), "Order.View");
                 item.CanCreateOrder = item.Status == RoomSessionStatuses.Active &&
                     permissions.HasPermission(User.Identity.GetUserId(), "Order.Create");
+                item.CanCheckout = item.Status == RoomSessionStatuses.Active &&
+                    permissions.HasPermission(User.Identity.GetUserId(), "Session.CheckOut");
+                item.CanViewInvoice = permissions.HasPermission(User.Identity.GetUserId(), "Invoice.View");
+                if (item.Status == RoomSessionStatuses.Completed && item.CanViewInvoice)
+                    item.InvoiceId = db.Invoices.AsNoTracking().Where(invoice =>
+                        invoice.RoomSessionId == id).Select(invoice => (int?)invoice.InvoiceId).SingleOrDefault();
                 return View(item);
             }
         }

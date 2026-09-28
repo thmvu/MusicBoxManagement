@@ -71,4 +71,12 @@
             </div>
         </div></section>
     }
+    @if (Model.CanCheckout)
+    {
+        <div class="mt-4">@Html.ActionLink("Mở checkout", "Index", "Checkout", new { sessionId = Model.RoomSessionId }, new { @class = "btn btn-primary" })</div>
+    }
+    @if (Model.CanViewInvoice && Model.InvoiceId.HasValue)
+    {
+        <div class="mt-4">@Html.ActionLink("Xem hóa đơn", "Details", "Invoices", new { id = Model.InvoiceId.Value }, new { @class = "btn btn-outline-primary" })</div>
+    }
 </main>

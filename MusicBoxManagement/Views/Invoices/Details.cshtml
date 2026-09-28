@@ -1,0 +1,25 @@
+@using System.Globalization
+@model MusicBoxManagement.Models.InvoiceDetailsViewModel
+@{ ViewBag.Title = "Hóa đơn " + Model.InvoiceNumber; var vi = CultureInfo.GetCultureInfo("vi-VN"); var offset = TimeSpan.FromHours(7); }
+<main class="py-4 invoice-page">
+    <p>@Html.ActionLink("← Danh sách hóa đơn", "Index")</p>
+    <h1>Hóa đơn @Model.InvoiceNumber</h1>
+    @if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+    <p>Đã thanh toán lúc @Model.PaidAt.ToOffset(offset).ToString("HH:mm dd/MM/yyyy", vi).</p>
+    @if (ViewBag.CanPrint) { @Html.ActionLink("Mở phiếu in", "Print", new { id = Model.InvoiceId }, new { @class = "btn btn-outline-primary mb-4" }) }
+    <dl class="row">
+        <dt class="col-sm-3">Phòng</dt><dd class="col-sm-9">@Model.RoomCode · @Model.RoomTypeName</dd>
+        <dt class="col-sm-3">Sử dụng</dt><dd class="col-sm-9">@Model.ActualStartTime.ToOffset(offset).ToString("HH:mm dd/MM/yyyy", vi) – @Model.ActualEndTime.ToOffset(offset).ToString("HH:mm dd/MM/yyyy", vi)</dd>
+        <dt class="col-sm-3">Thời lượng</dt><dd class="col-sm-9">@Model.UsedMinutes.ToString("N1", vi) phút · @Model.HourlyRate.ToString("N0", vi) đ/giờ</dd>
+        <dt class="col-sm-3">Thanh toán</dt><dd class="col-sm-9">@(Model.PaymentMethod == "Cash" ? "Tiền mặt" : "Chuyển khoản") · @Model.ProcessedByName</dd>
+    </dl>
+    <h2 class="h5 mt-4">Món đã phục vụ</h2>
+    @if (Model.Items.Count == 0) { <p>Không có món phát sinh.</p> }
+    else
+    {
+        <table class="table"><thead><tr><th>Món</th><th>Số lượng</th><th class="text-end">Đơn giá</th><th class="text-end">Thành tiền</th></tr></thead>
+            <tbody>@foreach (var item in Model.Items) { <tr><td>@item.Name</td><td>@item.Quantity</td><td class="text-end">@item.UnitPrice.ToString("N0", vi) đ</td><td class="text-end">@item.Amount.ToString("N0", vi) đ</td></tr> }</tbody>
+        </table>
+    }
+    <dl class="invoice-totals"><dt>Tiền phòng</dt><dd>@Model.RoomCharge.ToString("N0", vi) đ</dd><dt>Tiền món</dt><dd>@Model.ServiceCharge.ToString("N0", vi) đ</dd><dt>Tổng đã thanh toán</dt><dd>@Model.TotalAmount.ToString("N0", vi) đ</dd></dl>
+</main>

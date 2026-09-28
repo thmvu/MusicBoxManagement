@@ -49,6 +49,8 @@ namespace MusicBoxManagement.Models
 
         public DbSet<OrderItem> OrderItems { get; set; }
 
+        public DbSet<Invoice> Invoices { get; set; }
+
         public ApplicationDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)
         {
@@ -195,6 +197,33 @@ namespace MusicBoxManagement.Models
             modelBuilder.Entity<OrderItem>()
                 .Property(item => item.UnitPrice)
                 .HasPrecision(18, 2);
+            modelBuilder.Entity<Invoice>()
+                .HasRequired(invoice => invoice.RoomSession)
+                .WithMany()
+                .HasForeignKey(invoice => invoice.RoomSessionId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Invoice>()
+                .HasRequired(invoice => invoice.ProcessedByUser)
+                .WithMany()
+                .HasForeignKey(invoice => invoice.ProcessedByUserId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Invoice>()
+                .Property(invoice => invoice.InvoiceNumber)
+                .IsRequired()
+                .HasMaxLength(40)
+                .HasColumnAnnotation("Index", new System.Data.Entity.Infrastructure.Annotations.IndexAnnotation(
+                    new System.ComponentModel.DataAnnotations.Schema.IndexAttribute("UX_Invoice_Number") { IsUnique = true }));
+
+            modelBuilder.Entity<Invoice>()
+                .Property(invoice => invoice.RoomSessionId)
+                .HasColumnAnnotation("Index", new System.Data.Entity.Infrastructure.Annotations.IndexAnnotation(
+                    new System.ComponentModel.DataAnnotations.Schema.IndexAttribute("UX_Invoice_Session") { IsUnique = true }));
+
+            modelBuilder.Entity<Invoice>().Property(invoice => invoice.RoomCharge).HasPrecision(18, 2);
+            modelBuilder.Entity<Invoice>().Property(invoice => invoice.ServiceCharge).HasPrecision(18, 2);
+            modelBuilder.Entity<Invoice>().Property(invoice => invoice.TotalAmount).HasPrecision(18, 2);
         }
     }
 }

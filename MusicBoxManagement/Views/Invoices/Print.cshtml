@@ -1,0 +1,31 @@
+@using System.Globalization
+@model MusicBoxManagement.Models.InvoiceDetailsViewModel
+@{ Layout = null; var vi = CultureInfo.GetCultureInfo("vi-VN"); var offset = TimeSpan.FromHours(7); }
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Phiếu thanh toán @Model.InvoiceNumber</title>
+<style>
+    body { font: 14px/1.5 Arial, sans-serif; color: #222; max-width: 760px; margin: 30px auto; padding: 0 24px; }
+    h1 { font-size: 25px; margin-bottom: 4px; } h2 { font-size: 17px; border-bottom: 1px solid #555; padding-bottom: 7px; }
+    .muted { color: #555; } .row { display: flex; justify-content: space-between; gap: 20px; margin: 7px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 18px 0; } th, td { padding: 8px 5px; border-bottom: 1px solid #ddd; text-align: left; }
+    th:last-child, td:last-child { text-align: right; } .total { font-size: 19px; font-weight: bold; border-top: 2px solid #222; padding-top: 10px; }
+    .actions { margin: 25px 0; } button { padding: 8px 16px; cursor: pointer; }
+    @@media print { .actions { display: none; } body { margin: 0 auto; } }
+</style></head><body>
+    <div class="actions"><button type="button" onclick="window.print()">In phiếu</button></div>
+    <h1>MUSIC BOX</h1><p class="muted">Phiếu thanh toán · @Model.InvoiceNumber</p>
+    <div class="row"><span>Phòng</span><strong>@Model.RoomCode · @Model.RoomTypeName</strong></div>
+    <div class="row"><span>Bắt đầu</span><span>@Model.ActualStartTime.ToOffset(offset).ToString("HH:mm dd/MM/yyyy", vi)</span></div>
+    <div class="row"><span>Kết thúc</span><span>@Model.ActualEndTime.ToOffset(offset).ToString("HH:mm dd/MM/yyyy", vi)</span></div>
+    <div class="row"><span>Thời lượng / giá</span><span>@Model.UsedMinutes.ToString("N1", vi) phút · @Model.HourlyRate.ToString("N0", vi) đ/giờ</span></div>
+    <h2>Món đã phục vụ</h2>
+    <table><thead><tr><th>Món</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead><tbody>
+        @foreach (var item in Model.Items) { <tr><td>@item.Name</td><td>@item.Quantity</td><td>@item.UnitPrice.ToString("N0", vi) đ</td><td>@item.Amount.ToString("N0", vi) đ</td></tr> }
+    </tbody></table>
+    <div class="row"><span>Tiền phòng</span><span>@Model.RoomCharge.ToString("N0", vi) đ</span></div>
+    <div class="row"><span>Tiền món</span><span>@Model.ServiceCharge.ToString("N0", vi) đ</span></div>
+    <div class="row total"><span>Tổng đã thanh toán</span><span>@Model.TotalAmount.ToString("N0", vi) đ</span></div>
+    <p>Hình thức: @(Model.PaymentMethod == "Cash" ? "Tiền mặt" : "Chuyển khoản")</p>
+    <p>Nhân viên: @Model.ProcessedByName<br />Thanh toán: @Model.PaidAt.ToOffset(offset).ToString("HH:mm dd/MM/yyyy", vi)</p>
+</body></html>

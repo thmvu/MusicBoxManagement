@@ -107,6 +107,18 @@ input, select, textarea { max-width: 100%; }
     .site-footer span:last-child { margin-left: 0; }
 }
 
+/* Checkout and invoices */
+.checkout-page { max-width: 850px; }
+.checkout-summary, .checkout-confirm { border-top: 2px solid var(--ink); padding: 20px 0 26px; margin-top: 25px; }
+.checkout-summary h2, .checkout-confirm h2 { margin-bottom: 12px; }
+.checkout-summary dl { max-width: 550px; margin: 25px 0 12px; }
+.checkout-total { font-size: 1.12rem; font-weight: 700; border-top: 1px solid var(--line); padding-top: 12px; }
+.checkout-note { color: var(--warning); margin: 20px 0; }
+.checkout-confirm .form-check { margin: 12px 0; }
+.invoice-page { max-width: 940px; }
+.invoice-totals { display: grid; grid-template-columns: 1fr auto; max-width: 380px; margin-left: auto; gap: 9px 20px; border-top: 2px solid var(--ink); padding-top: 15px; }
+.invoice-totals dd { text-align: right; margin: 0; }
+.invoice-totals dt:last-of-type, .invoice-totals dd:last-of-type { font-size: 1.1rem; font-weight: 700; }
 /* Public landing page */
 .body-content > main.landing-page { padding-top: 0 !important; }
 .landing-page { padding-top: 20px; }

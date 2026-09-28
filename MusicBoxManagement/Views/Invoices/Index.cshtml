@@ -1,0 +1,30 @@
+@using System.Globalization
+@model MusicBoxManagement.Models.InvoiceSearchViewModel
+@{ ViewBag.Title = "Hóa đơn"; var vi = CultureInfo.GetCultureInfo("vi-VN"); var offset = TimeSpan.FromHours(7); }
+<main class="py-4">
+    <h1>Hóa đơn</h1>
+    <p class="text-muted">Tìm theo mã, số điện thoại khách hoặc ngày thanh toán.</p>
+    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+    <form method="get" action="@Url.Action("Index")" class="row g-2 align-items-end mb-4">
+        <div class="col-md-3"><label class="form-label" for="code">Mã hóa đơn</label><input class="form-control" id="code" name="Code" value="@Model.Code" /></div>
+        <div class="col-md-3"><label class="form-label" for="phone">Số điện thoại</label><input class="form-control" id="phone" name="PhoneNumber" value="@Model.PhoneNumber" /></div>
+        <div class="col-md-2"><label class="form-label" for="from">Từ ngày</label><input class="form-control" type="date" id="from" name="FromDate" value="@Model.FromDate" /></div>
+        <div class="col-md-2"><label class="form-label" for="to">Đến ngày</label><input class="form-control" type="date" id="to" name="ToDate" value="@Model.ToDate" /></div>
+        <div class="col-md-2"><button class="btn btn-primary" type="submit">Tìm hóa đơn</button></div>
+    </form>
+    @if (Model.Items.Count == 0) { <p>Không tìm thấy hóa đơn phù hợp.</p> }
+    else
+    {
+        <div class="table-responsive"><table class="table table-striped">
+            <thead><tr><th>Mã</th><th>Đã thanh toán</th><th>Phòng</th><th>Khách</th><th class="text-end">Tổng tiền</th><th></th></tr></thead>
+            <tbody>@foreach (var item in Model.Items) {
+                <tr><td>@item.InvoiceNumber</td><td>@item.PaidAt.ToOffset(offset).ToString("dd/MM/yyyy HH:mm", vi)</td><td>@item.RoomCode</td><td>@item.CustomerName</td><td class="text-end">@item.TotalAmount.ToString("N0", vi) đ</td><td>@Html.ActionLink("Xem", "Details", new { id = item.InvoiceId })</td></tr>
+            }</tbody>
+        </table></div>
+        <nav class="d-flex gap-3" aria-label="Trang hóa đơn">
+            @if (Model.Page > 1) { @Html.ActionLink("Trang trước", "Index", new { Code = Model.Code, PhoneNumber = Model.PhoneNumber, FromDate = Model.FromDate, ToDate = Model.ToDate, Page = Model.Page - 1 }) }
+            <span>Trang @Model.Page</span>
+            @if (Model.HasNext) { @Html.ActionLink("Trang sau", "Index", new { Code = Model.Code, PhoneNumber = Model.PhoneNumber, FromDate = Model.FromDate, ToDate = Model.ToDate, Page = Model.Page + 1 }) }
+        </nav>
+    }
+</main>

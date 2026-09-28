@@ -172,6 +172,8 @@
     <Compile Include="Controllers\CustomersController.cs" />
     <Compile Include="Controllers\PublicRoomsController.cs" />
     <Compile Include="Controllers\GuestBookingsController.cs" />
+    <Compile Include="Controllers\CheckoutController.cs" />
+    <Compile Include="Controllers\InvoicesController.cs" />
     <Compile Include="Controllers\OrdersController.cs" />
     <Compile Include="Controllers\ReservationsController.cs" />
     <Compile Include="Controllers\RoomSessionsController.cs" />
@@ -207,7 +209,9 @@
     <Compile Include="Models\Reservation.cs" />
     <Compile Include="Models\RoomSession.cs" />
     <Compile Include="Models\Order.cs" />
+    <Compile Include="Models\Invoice.cs" />
     <Compile Include="Models\OrderViewModels.cs" />
+    <Compile Include="Models\CheckoutViewModels.cs" />
     <Compile Include="Models\DashboardViewModel.cs" />
     <Compile Include="Models\RoomViewModels.cs" />
     <Compile Include="Models\RoomTypeViewModels.cs" />
@@ -232,6 +236,7 @@
     <Compile Include="Services\OrderService.cs" />
     <Compile Include="Services\OrderReadService.cs" />
     <Compile Include="Services\BillingService.cs" />
+    <Compile Include="Services\CheckoutService.cs" />
     <Compile Include="Services\GuestBookingDateParser.cs" />
     <Compile Include="Services\GuestRoomScheduleRules.cs" />
     <Compile Include="Services\GuestRoomScheduleService.cs" />
@@ -269,6 +274,10 @@
     <Compile Include="Migrations\202609271249397_AddOrder.cs" />
     <Compile Include="Migrations\202609271249397_AddOrder.Designer.cs">
       <DependentUpon>202609271249397_AddOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202609281413547_AddInvoice.cs" />
+    <Compile Include="Migrations\202609281413547_AddInvoice.Designer.cs">
+      <DependentUpon>202609281413547_AddInvoice.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\202609210920479_AddApplicationUserProfile.cs" />
     <Compile Include="Migrations\202609210920479_AddApplicationUserProfile.Designer.cs">
@@ -371,6 +380,10 @@
     <Content Include="Views\PublicRooms\Details.cshtml" />
     <Content Include="Views\PublicRooms\BookingSuccess.cshtml" />
     <Content Include="Views\GuestBookings\Index.cshtml" />
+    <Content Include="Views\Checkout\Index.cshtml" />
+    <Content Include="Views\Invoices\Index.cshtml" />
+    <Content Include="Views\Invoices\Details.cshtml" />
+    <Content Include="Views\Invoices\Print.cshtml" />
     <Content Include="Views\Orders\Index.cshtml" />
     <Content Include="Views\Orders\Create.cshtml" />
     <Content Include="Views\Orders\Details.cshtml" />
@@ -482,6 +495,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202609251400359_AddRoomSession.resx">
       <DependentUpon>202609251400359_AddRoomSession.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202609281413547_AddInvoice.resx">
+      <DependentUpon>202609281413547_AddInvoice.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202609271249397_AddOrder.resx">
       <DependentUpon>202609271249397_AddOrder.cs</DependentUpon>

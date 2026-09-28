@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using MusicBoxManagement.Services;
@@ -44,6 +44,9 @@ namespace MusicBoxManagement.Models
         public bool CanExtend { get; set; }
         public bool CanCreateOrder { get; set; }
         public bool CanViewOrders { get; set; }
+        public bool CanCheckout { get; set; }
+        public bool CanViewInvoice { get; set; }
+        public int? InvoiceId { get; set; }
         public BillingPreview Billing { get; set; }
     }
 }

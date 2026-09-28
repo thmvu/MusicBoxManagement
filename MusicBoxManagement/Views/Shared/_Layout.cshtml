@@ -7,6 +7,7 @@
     var canDashboard = false;
     var canReservations = false;
     var canSessions = false;
+    var canInvoices = false;
     var canOrders = false;
     var canCustomers = false;
     var canRooms = false;
@@ -22,6 +23,7 @@
             canDashboard = permissions.HasPermission(userId, "Dashboard.View");
             canReservations = permissions.HasPermission(userId, "Reservation.View");
             canSessions = permissions.HasPermission(userId, "Session.View");
+            canInvoices = permissions.HasPermission(userId, "Invoice.View");
             canOrders = permissions.HasPermission(userId, "Order.View");
             canCustomers = permissions.HasPermission(userId, "Customer.View");
             canRooms = permissions.HasPermission(userId, "Room.Manage");
@@ -30,7 +32,7 @@
             canUsers = permissions.HasPermission(userId, "User.Manage");
         }
     }
-    var operationsActive = controller == "Dashboard" || controller == "Reservations" || controller == "RoomSessions" || controller == "Orders" || controller == "Customers";
+    var operationsActive = controller == "Dashboard" || controller == "Reservations" || controller == "RoomSessions" || controller == "Orders" || controller == "Checkout" || controller == "Invoices" || controller == "Customers";
     var catalogActive = controller == "Rooms" || controller == "RoomTypes" || controller == "ServiceCatalog";
 }
 <!DOCTYPE html>
@@ -40,7 +42,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewBag.Title | Music Box</title>
     @Styles.Render("~/Content/css")
-    <link href="@Url.Content("~/Content/Site.css")?v=20260928-1" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/Site.css")?v=20260928-2" rel="stylesheet" />
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>
@@ -56,7 +58,7 @@
                     <ul class="navbar-nav site-nav-links">
                         <li class="nav-item">@Html.ActionLink("Xem phòng", "Index", "PublicRooms", null, new { @class = "nav-link" + (controller == "PublicRooms" ? " active" : "") })</li>
                         <li class="nav-item">@Html.ActionLink("Tra cứu đặt phòng", "Index", "GuestBookings", null, new { @class = "nav-link" + (controller == "GuestBookings" ? " active" : "") })</li>
-                        @if (canDashboard || canReservations || canSessions || canOrders || canCustomers)
+                        @if (canDashboard || canReservations || canSessions || canOrders || canInvoices || canCustomers)
                         {
                             <li class="nav-item dropdown">
                                 <button class="nav-link dropdown-toggle @(operationsActive ? "active" : "")" type="button" data-bs-toggle="dropdown" aria-expanded="false">Vận hành</button>
@@ -65,6 +67,7 @@
                                     @if (canReservations) { <li>@Html.ActionLink("Đặt phòng", "Index", "Reservations", null, new { @class = "dropdown-item" })</li> }
                                     @if (canSessions) { <li>@Html.ActionLink("Phiên sử dụng", "Index", "RoomSessions", null, new { @class = "dropdown-item" })</li> }
                                     @if (canOrders) { <li>@Html.ActionLink("Đơn món", "Index", "Orders", null, new { @class = "dropdown-item" })</li> }
+                                    @if (canInvoices) { <li>@Html.ActionLink("Hóa đơn", "Index", "Invoices", null, new { @class = "dropdown-item" })</li> }
                                     @if (canCustomers) { <li>@Html.ActionLink("Khách hàng", "Index", "Customers", null, new { @class = "dropdown-item" })</li> }
                                 </ul>
                             </li>
