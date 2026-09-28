@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
+using Microsoft.AspNet.Identity;
+using MusicBoxManagement.Models;
+using MusicBoxManagement.Services;
 
 namespace MusicBoxManagement.Controllers
 {
@@ -10,7 +9,13 @@ namespace MusicBoxManagement.Controllers
     {
         public ActionResult Index()
         {
-            return RedirectToAction("Index", "PublicRooms");
+            if (Request.IsAuthenticated)
+            {
+                using (var db = new ApplicationDbContext())
+                    ViewBag.CanDashboard = new PermissionService(db)
+                        .HasPermission(User.Identity.GetUserId(), "Dashboard.View");
+            }
+            return View();
         }
 
         public ActionResult About()

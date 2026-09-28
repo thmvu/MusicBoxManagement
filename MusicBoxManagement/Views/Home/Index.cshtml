@@ -1,6 +1,40 @@
-@{ ViewBag.Title = "Music Box"; }
-<main class="py-4">
-    <h1>Music Box</h1>
-    <p>Xem thông tin phòng và đặt trước theo lịch còn trống.</p>
-    @Html.ActionLink("Xem danh sách phòng", "Index", "PublicRooms", null, new { @class = "btn btn-primary" })
+﻿@{ ViewBag.Title = "Music Box — Đặt phòng hát"; }
+
+<main class="landing-page">
+    <section class="landing-hero" aria-labelledby="landing-title">
+        <div class="landing-intro">
+            <p class="landing-mark">Phòng hát riêng theo giờ</p>
+            <h1 id="landing-title">Một căn phòng.<br />Một buổi hát của riêng bạn.</h1>
+            <p class="landing-lead">Chọn phòng, xem giờ còn trống và đặt trước theo lịch. Khi cần xem lại hoặc gia hạn phiên đang dùng, chỉ cần số điện thoại đã đặt.</p>
+            <div class="landing-actions">
+                @Html.ActionLink("Xem phòng và đặt lịch", "Index", "PublicRooms", null, new { @class = "btn btn-primary" })
+                @Html.ActionLink("Tra cứu đặt phòng", "Index", "GuestBookings", null, new { @class = "btn btn-outline-primary" })
+            </div>
+            @if (ViewBag.CanDashboard == true)
+            {
+                <p class="landing-staff-link">Nhân viên: @Html.ActionLink("Mở trang tổng quan", "Index", "Dashboard")</p>
+            }
+        </div>
+        <div class="landing-photo">
+            <img src="@Url.Content("~/Content/images/landing-room.png")" alt="Minh họa phòng hát riêng với ghế ngồi, màn hình và micro" />
+            <span>Không gian phòng hát · ảnh minh họa</span>
+        </div>
+    </section>
+
+    <section class="landing-steps" aria-labelledby="landing-steps-title">
+        <div class="landing-section-heading">
+            <h2 id="landing-steps-title">Đặt phòng như thế nào?</h2>
+            <p>Ba bước ngắn để có lịch hẹn rõ ràng.</p>
+        </div>
+        <ol class="landing-step-list">
+            <li><span>01</span><div><h3>Chọn phòng</h3><p>Xem sức chứa, tiện ích và giá theo giờ của từng phòng.</p></div></li>
+            <li><span>02</span><div><h3>Chọn giờ trống</h3><p>Chọn thời điểm phù hợp trên lịch phòng và gửi thông tin đặt.</p></div></li>
+            <li><span>03</span><div><h3>Tra cứu khi cần</h3><p>Dùng số điện thoại để xem lại lịch đặt và phiên đang sử dụng.</p></div></li>
+        </ol>
+    </section>
+
+    <section class="landing-close" aria-label="Bắt đầu đặt phòng">
+        <p>Buổi hát tiếp theo bắt đầu từ một căn phòng phù hợp.</p>
+        @Html.ActionLink("Khám phá các phòng", "Index", "PublicRooms", null, new { @class = "landing-text-link" })
+    </section>
 </main>

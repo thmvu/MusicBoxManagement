@@ -106,3 +106,55 @@ input, select, textarea { max-width: 100%; }
     .site-footer .container-fluid { padding: 0 18px; flex-wrap: wrap; }
     .site-footer span:last-child { margin-left: 0; }
 }
+
+/* Public landing page */
+.body-content > main.landing-page { padding-top: 0 !important; }
+.landing-page { padding-top: 20px; }
+.landing-hero { display: grid; grid-template-columns: minmax(0, 48%) minmax(0, 52%); min-height: 570px; background: #e9eeea; border: 1px solid var(--line); }
+.landing-intro { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: clamp(36px, 5vw, 88px); }
+.landing-mark { color: var(--accent); font-size: .86rem; font-weight: 650; margin-bottom: 28px; }
+.landing-intro h1 { font-size: clamp(2.6rem, 4.5vw, 4.8rem); font-weight: 680; letter-spacing: -.055em; line-height: 1.08; max-width: 620px; margin: 0; }
+.landing-lead { color: var(--ink-soft); font-size: 1.08rem; line-height: 1.65; max-width: 520px; margin: 30px 0 34px; }
+.landing-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.landing-actions .btn { padding: .76rem 1.14rem; }
+.landing-staff-link { font-size: .88rem; margin: 30px 0 0; }
+.landing-photo { position: relative; min-height: 420px; overflow: hidden; background: #403a34; }
+.landing-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
+.landing-photo span { position: absolute; bottom: 18px; right: 20px; padding: 7px 10px; color: white; background: rgba(20, 24, 23, .7); font-size: .76rem; }
+.landing-steps { padding: 76px 0 70px; }
+.landing-section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; border-bottom: 2px solid var(--ink); padding-bottom: 18px; }
+.landing-section-heading h2 { font-size: 1.65rem; margin: 0; }
+.landing-section-heading p { color: var(--ink-soft); margin: 0; }
+.landing-step-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); list-style: none; padding: 0; margin: 0; }
+.landing-step-list li { display: flex; gap: 20px; padding: 30px 28px 22px 0; }
+.landing-step-list li + li { border-left: 1px solid var(--line); padding-left: 28px; }
+.landing-step-list span { color: var(--accent); font-size: .9rem; font-weight: 700; padding-top: 3px; }
+.landing-step-list h3 { font-size: 1.14rem; font-weight: 650; margin: 0 0 9px; }
+.landing-step-list p { color: var(--ink-soft); line-height: 1.6; max-width: 280px; margin: 0; }
+.landing-close { display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid var(--line); padding: 26px 0 10px; }
+.landing-close p { font-size: 1.08rem; font-weight: 600; margin: 0; }
+.landing-text-link { font-weight: 650; white-space: nowrap; }
+@media (max-width: 991px) {
+    .landing-hero { grid-template-columns: 1fr; }
+    .landing-intro { padding: 46px 38px; }
+    .landing-photo { height: 430px; }
+}
+@media (max-width: 600px) {
+    .landing-page { padding-top: 10px; }
+    .landing-intro { padding: 34px 25px 38px; }
+    .landing-mark { margin-bottom: 18px; }
+    .landing-intro h1 { font-size: clamp(2.25rem, 11vw, 3.2rem); }
+    .landing-lead { font-size: 1rem; margin: 22px 0 26px; }
+    .landing-actions { width: 100%; }
+    .landing-actions .btn { width: 100%; }
+    .landing-photo { height: 290px; min-height: 0; }
+    .landing-photo span { right: 10px; bottom: 10px; }
+    .landing-steps { padding: 52px 0 42px; }
+    .landing-section-heading { display: block; }
+    .landing-section-heading p { margin-top: 8px; }
+    .landing-step-list { grid-template-columns: 1fr; }
+    .landing-step-list li { padding: 20px 0; }
+    .landing-step-list li + li { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; }
+    .landing-close { display: block; }
+    .landing-close p { margin-bottom: 10px; }
+}
