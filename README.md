@@ -29,6 +29,17 @@ Update-Database
 
 Sau khi Admin đã tồn tại, seed không tự thay đổi role hoặc mật khẩu tài khoản đó.
 
+## Tạo dữ liệu demo phát triển
+
+Seed demo là tùy chọn để tránh tự thêm khách và phiên sử dụng vào database thật. Trước khi chạy `Update-Database`, đặt biến sau trong PowerShell:
+
+```powershell
+$env:MUSICBOX_SEED_DEMO = "1"
+Update-Database
+```
+
+Nó tạo một số phòng Standard/VIP, một phòng tạm khóa, hai khách demo, một booking ngày mai và một phiên walk-in đang hoạt động. Chạy lại sẽ không tạo trùng và không ghi đè dữ liệu hiện có.
+
 ## Luồng demo gợi ý
 
 1. Đăng nhập Admin hoặc Staff có đủ quyền vận hành.

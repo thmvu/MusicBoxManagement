@@ -51,6 +51,9 @@
             if (newRoles.Contains("Staff")) SeedDefaults(context, roles.FindByName("Staff").Id, PermissionCodes.StaffDefaults);
             if (newRoles.Contains("Manager")) SeedDefaults(context, roles.FindByName("Manager").Id, PermissionCodes.ManagerDefaults);
 
+            if (Environment.GetEnvironmentVariable("MUSICBOX_SEED_DEMO") == "1")
+                DevelopmentDemoSeeder.Seed(context, DateTimeOffset.UtcNow);
+
             // Local bootstrap only: supply both environment variables when running Update-Database.
             // Existing users are never promoted implicitly.
             var adminName = Environment.GetEnvironmentVariable("MUSICBOX_ADMIN_USERNAME");

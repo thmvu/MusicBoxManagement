@@ -186,6 +186,7 @@
     <Compile Include="Services\ReportMath.cs" />
     <Compile Include="Services\ReportService.cs" />
     <Compile Include="Services\ReportExcelWriter.cs" />
+    <Compile Include="Services\DevelopmentDemoSeeder.cs" />
     <Compile Include="Services\UserManagementService.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\DashboardController.cs" />
