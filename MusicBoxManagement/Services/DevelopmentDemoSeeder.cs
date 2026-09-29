@@ -1,24 +1,32 @@
 using System;
 using System.Data.Entity;
 using System.Linq;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using MusicBoxManagement.Models;
 
 namespace MusicBoxManagement.Services
 {
     public static class DevelopmentDemoSeeder
     {
-        public static void Seed(ApplicationDbContext db, DateTimeOffset now)
+        public static void Seed(ApplicationDbContext db, DateTimeOffset now, string demoPassword)
         {
             if (db == null) throw new ArgumentNullException(nameof(db));
+            if (string.IsNullOrWhiteSpace(demoPassword))
+                throw new ArgumentException("Cần cấu hình mật khẩu demo qua MUSICBOX_DEMO_PASSWORD.", nameof(demoPassword));
+
+            EnsureDemoUsers(db, demoPassword);
             var standard = db.RoomTypes.SingleOrDefault(item => item.Code == "STANDARD");
             var vip = db.RoomTypes.SingleOrDefault(item => item.Code == "VIP");
             if (standard == null || vip == null)
                 throw new InvalidOperationException("Cần có loại phòng STANDARD và VIP trước khi seed dữ liệu demo.");
 
-            EnsureRoom(db, "MB-101", "Phòng Standard 101", standard.RoomTypeId, true, null, now);
-            EnsureRoom(db, "MB-201", "Phòng VIP 201", vip.RoomTypeId, true, null, now);
+            EnsureRoom(db, "MB-101", "Phòng Standard 101", standard.RoomTypeId, true, null,
+                "~/Content/images/landing-room.png", now);
+            EnsureRoom(db, "MB-201", "Phòng VIP 201", vip.RoomTypeId, true, null,
+                "~/Content/images/landing-room.png", now);
             EnsureRoom(db, "MB-999", "Phòng demo tạm khóa", standard.RoomTypeId, false,
-                "Phòng minh họa trạng thái tạm khóa.", now);
+                "Phòng minh họa trạng thái tạm khóa.", null, now);
             db.SaveChanges();
 
             var bookingCustomer = EnsureCustomer(db, "Khách đặt trước demo", "0900000001");
@@ -56,16 +64,56 @@ namespace MusicBoxManagement.Services
             db.SaveChanges();
         }
 
-        private static void EnsureRoom(ApplicationDbContext db, string code, string name,
-            int roomTypeId, bool active, string reason, DateTimeOffset now)
+        private static void EnsureDemoUsers(ApplicationDbContext db, string password)
         {
-            if (!db.Rooms.Any(item => item.RoomCode == code))
+            var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(db));
+            var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(db));
+            userManager.PasswordValidator = new PasswordValidator
+            {
+                RequiredLength = 6,
+                RequireNonLetterOrDigit = true,
+                RequireDigit = true,
+                RequireLowercase = true,
+                RequireUppercase = true
+            };
+
+            EnsureDemoUser(userManager, roleManager, "demo.staff", "Nhân viên demo", "Staff", password);
+            EnsureDemoUser(userManager, roleManager, "demo.manager", "Quản lý demo", "Manager", password);
+        }
+
+        private static void EnsureDemoUser(UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager, string username, string fullName, string role,
+            string password)
+        {
+            if (!roleManager.RoleExists(role))
+                throw new InvalidOperationException("Cần có role " + role + " trước khi seed tài khoản demo.");
+
+            var user = userManager.FindByName(username);
+            if (user == null)
+            {
+                user = new ApplicationUser { UserName = username, FullName = fullName, IsActive = true };
+                Check(userManager.Create(user, password));
+                Check(userManager.AddToRole(user.Id, role));
+                return;
+            }
+
+            if (!userManager.IsInRole(user.Id, role))
+                throw new InvalidOperationException("Tài khoản " + username + " đã tồn tại nhưng không có role " + role + ".");
+        }
+
+        private static void EnsureRoom(ApplicationDbContext db, string code, string name,
+            int roomTypeId, bool active, string reason, string imageUrl, DateTimeOffset now)
+        {
+            var room = db.Rooms.SingleOrDefault(item => item.RoomCode == code);
+            if (room == null)
                 db.Rooms.Add(new Room
                 {
                     RoomCode = code, Name = name, RoomTypeId = roomTypeId,
                     IsActive = active, InactiveReason = reason, CreatedAt = now,
-                    Description = "Dữ liệu demo cho đồ án Music Box."
+                    Description = "Dữ liệu demo cho đồ án Music Box.", ImageUrl = imageUrl
                 });
+            else if (active && string.IsNullOrWhiteSpace(room.ImageUrl))
+                room.ImageUrl = imageUrl;
         }
 
         private static Customer EnsureCustomer(ApplicationDbContext db, string name, string phone)
@@ -75,6 +123,11 @@ namespace MusicBoxManagement.Services
             customer = new Customer { FullName = name, PhoneNumber = phone };
             db.Customers.Add(customer);
             return customer;
+        }
+
+        private static void Check(IdentityResult result)
+        {
+            if (!result.Succeeded) throw new InvalidOperationException(string.Join("; ", result.Errors));
         }
     }
 }

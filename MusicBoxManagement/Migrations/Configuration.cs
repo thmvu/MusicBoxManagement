@@ -52,7 +52,12 @@
             if (newRoles.Contains("Manager")) SeedDefaults(context, roles.FindByName("Manager").Id, PermissionCodes.ManagerDefaults);
 
             if (Environment.GetEnvironmentVariable("MUSICBOX_SEED_DEMO") == "1")
-                DevelopmentDemoSeeder.Seed(context, DateTimeOffset.UtcNow);
+            {
+                var demoPassword = Environment.GetEnvironmentVariable("MUSICBOX_DEMO_PASSWORD");
+                if (string.IsNullOrWhiteSpace(demoPassword))
+                    throw new InvalidOperationException("Đặt MUSICBOX_DEMO_PASSWORD để tạo tài khoản Staff/Manager demo.");
+                DevelopmentDemoSeeder.Seed(context, DateTimeOffset.UtcNow, demoPassword);
+            }
 
             // Local bootstrap only: supply both environment variables when running Update-Database.
             // Existing users are never promoted implicitly.
