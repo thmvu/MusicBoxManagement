@@ -15,6 +15,8 @@
     var canRoomTypes = false;
     var canServices = false;
     var canUsers = false;
+    var canPermissions = false;
+    var canAudit = false;
     if (signedIn)
     {
         using (var db = new ApplicationDbContext())
@@ -32,6 +34,8 @@
             canRoomTypes = permissions.HasPermission(userId, "RoomType.Edit");
             canServices = permissions.HasPermission(userId, "Service.Manage");
             canUsers = permissions.HasPermission(userId, "User.Manage");
+            canPermissions = permissions.HasPermission(userId, "Permission.Manage");
+            canAudit = permissions.HasPermission(userId, "Audit.View");
         }
     }
     var operationsActive = controller == "Dashboard" || controller == "Calendar" || controller == "Reservations" || controller == "RoomSessions" || controller == "Orders" || controller == "Checkout" || controller == "Invoices" || controller == "Customers";
@@ -44,7 +48,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewBag.Title | Music Box</title>
     @Styles.Render("~/Content/css")
-    <link href="@Url.Content("~/Content/Site.css")?v=20260928-4" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/Site.css")?v=20260929-1" rel="stylesheet" />
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>
@@ -86,9 +90,16 @@
                                 </ul>
                             </li>
                         }
-                        @if (canUsers)
+                        @if (canUsers || canPermissions || canAudit)
                         {
-                            <li class="nav-item">@Html.ActionLink("Tài khoản", "Index", "Users", null, new { @class = "nav-link" + (controller == "Users" ? " active" : "") })</li>
+                            <li class="nav-item dropdown">
+                                <button class="nav-link dropdown-toggle @(controller == "Users" || controller == "Permissions" || controller == "AuditLogs" ? "active" : "")" type="button" data-bs-toggle="dropdown" aria-expanded="false">Quản trị</button>
+                                <ul class="dropdown-menu">
+                                    @if (canUsers) { <li>@Html.ActionLink("Tài khoản", "Index", "Users", null, new { @class = "dropdown-item" })</li> }
+                                    @if (canPermissions) { <li>@Html.ActionLink("Ma trận quyền", "Index", "Permissions", null, new { @class = "dropdown-item" })</li> }
+                                    @if (canAudit) { <li>@Html.ActionLink("Nhật ký thao tác", "Index", "AuditLogs", null, new { @class = "dropdown-item" })</li> }
+                                </ul>
+                            </li>
                         }
                     </ul>
                     @Html.Partial("_LoginPartial")

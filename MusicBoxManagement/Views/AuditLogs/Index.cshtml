@@ -1,0 +1,44 @@
+@using System.Globalization
+@model MusicBoxManagement.Models.AuditLogSearchViewModel
+@{
+    ViewBag.Title = "Nhật ký thao tác";
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+    var offset = TimeSpan.FromHours(7);
+}
+<main class="py-4 audit-page">
+    <header class="page-heading">
+        <div>
+            <p class="page-context">Music Box / Quản trị</p>
+            <h1>Nhật ký thao tác</h1>
+            <p class="page-subtitle">Các thao tác nghiệp vụ quan trọng; dữ liệu chỉ để xem.</p>
+        </div>
+    </header>
+    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+    @using (Html.BeginForm("Index", "AuditLogs", FormMethod.Get, new { @class = "audit-filter" }))
+    {
+        <label>Thao tác<input class="form-control" name="Action" value="@Model.Action" placeholder="Ví dụ: Checkout" /></label>
+        <label>Đối tượng<input class="form-control" name="EntityName" value="@Model.EntityName" placeholder="Ví dụ: Invoice" /></label>
+        <label>Từ ngày<input class="form-control" type="date" name="FromDate" value="@Model.FromDate" /></label>
+        <label>Đến ngày<input class="form-control" type="date" name="ToDate" value="@Model.ToDate" /></label>
+        <button class="btn btn-outline-primary" type="submit">Lọc</button>
+    }
+    <div class="table-responsive">
+        <table class="table audit-table">
+            <thead><tr><th>Thời điểm</th><th>Người thực hiện</th><th>Thao tác</th><th>Đối tượng</th><th>Diễn giải</th></tr></thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr><td>@item.CreatedAt.ToOffset(offset).ToString("HH:mm dd/MM/yyyy", vi)</td>
+                        <td>@(item.UserName ?? item.ActorType)</td><td>@item.Action</td>
+                        <td>@item.EntityName @item.EntityId</td><td>@item.Description</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.Items.Count == 0) { <p>Không có nhật ký phù hợp.</p> }
+    <nav class="d-flex gap-3" aria-label="Phân trang nhật ký">
+        @if (Model.Page > 1) { @Html.ActionLink("← Trang trước", "Index", new { Model.Action, Model.EntityName, Model.FromDate, Model.ToDate, Page = Model.Page - 1 }) }
+        <span>Trang @Model.Page</span>
+        @if (Model.HasNext) { @Html.ActionLink("Trang sau →", "Index", new { Model.Action, Model.EntityName, Model.FromDate, Model.ToDate, Page = Model.Page + 1 }) }
+    </nav>
+</main>

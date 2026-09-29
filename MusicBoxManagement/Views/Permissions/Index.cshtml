@@ -1,0 +1,74 @@
+@using System.Collections.Generic
+@model IList<MusicBoxManagement.Models.PermissionMatrixRowViewModel>
+@{
+    ViewBag.Title = "Ma trận quyền";
+    var labels = new Dictionary<string, string> {
+        { "Dashboard.View", "Xem tổng quan" }, { "Calendar.View", "Xem lịch phòng" },
+        { "Reservation.View", "Xem đặt phòng" }, { "Reservation.Create", "Tạo đặt phòng" },
+        { "Reservation.Cancel", "Hủy đặt phòng" }, { "Session.View", "Xem phiên sử dụng" },
+        { "Session.CheckIn", "Nhận phòng" }, { "Session.WalkIn", "Tạo khách trực tiếp" },
+        { "Session.Extend", "Gia hạn phiên" }, { "Session.CheckOut", "Trả phòng" },
+        { "Order.View", "Xem đơn món" }, { "Order.Create", "Tạo đơn món" },
+        { "Order.Confirm", "Xác nhận món" }, { "Order.Cancel", "Hủy món chờ" },
+        { "Invoice.View", "Xem hóa đơn" }, { "Invoice.Print", "In hóa đơn" },
+        { "Customer.View", "Xem khách hàng" }, { "Customer.Create", "Tạo khách hàng" },
+        { "Customer.Edit", "Sửa khách hàng" }, { "Room.Manage", "Quản lý phòng" },
+        { "RoomType.Edit", "Sửa loại phòng" }, { "Service.Manage", "Quản lý dịch vụ" },
+        { "Report.View", "Xem báo cáo" }, { "Report.Export", "Xuất báo cáo" },
+        { "User.Manage", "Quản lý tài khoản" }, { "Permission.Manage", "Quản lý quyền" },
+        { "Audit.View", "Xem nhật ký" }
+    };
+}
+<main class="py-4 permission-page">
+    <header class="page-heading">
+        <div>
+            <p class="page-context">Music Box / Quản trị</p>
+            <h1>Ma trận quyền</h1>
+            <p class="page-subtitle">Quyền Staff và Manager được lưu riêng. Admin luôn toàn quyền.</p>
+        </div>
+    </header>
+    @if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+    @if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
+    <p class="permission-note">Thay đổi có hiệu lực ở request tiếp theo. In hóa đơn cần quyền xem hóa đơn; xuất báo cáo cần quyền xem báo cáo. Staff không được cấp quyền báo cáo.</p>
+    <div class="table-responsive">
+        <table class="table permission-table">
+            <thead><tr><th>Quyền</th><th>Staff</th><th>Manager</th></tr></thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <th scope="row"><span>@labels[item.Code]</span><small>@item.Code</small></th>
+                        <td>
+                            @if (item.StaffEditable)
+                            {
+                                using (Html.BeginForm("SetGrant", "Permissions", FormMethod.Post))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="role" value="Staff" />
+                                    <input type="hidden" name="code" value="@item.Code" />
+                                    <input type="hidden" name="enabled" value="@(!item.StaffGranted ? "true" : "false")" />
+                                    <button type="submit" class="btn btn-sm @(item.StaffGranted ? "btn-outline-primary" : "btn-outline-secondary")" aria-label="@(item.StaffGranted ? "Thu hồi" : "Cấp") @labels[item.Code] cho Staff">@(item.StaffGranted ? "Đã cấp · Thu hồi" : "Chưa cấp · Cấp")</button>
+                                }
+                            }
+                            else { <span class="text-muted">Không cấp</span> }
+                        </td>
+                        <td>
+                            @if (item.ManagerEditable)
+                            {
+                                using (Html.BeginForm("SetGrant", "Permissions", FormMethod.Post))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="role" value="Manager" />
+                                    <input type="hidden" name="code" value="@item.Code" />
+                                    <input type="hidden" name="enabled" value="@(!item.ManagerGranted ? "true" : "false")" />
+                                    <button type="submit" class="btn btn-sm @(item.ManagerGranted ? "btn-outline-primary" : "btn-outline-secondary")" aria-label="@(item.ManagerGranted ? "Thu hồi" : "Cấp") @labels[item.Code] cho Manager">@(item.ManagerGranted ? "Đã cấp · Thu hồi" : "Chưa cấp · Cấp")</button>
+                                }
+                            }
+                            else { <span class="text-muted">Chỉ Admin</span> }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</main>

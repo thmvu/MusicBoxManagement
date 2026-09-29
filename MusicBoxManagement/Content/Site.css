@@ -107,6 +107,17 @@ input, select, textarea { max-width: 100%; }
     .site-footer span:last-child { margin-left: 0; }
 }
 
+/* Admin permissions and audit */
+.permission-page, .audit-page { max-width: 1400px; margin: 0 auto; }
+.permission-note { color: var(--ink-soft); border-top: 1px solid var(--line); padding-top: 16px; }
+.permission-table th, .permission-table td { vertical-align: middle; }
+.permission-table th:first-child { min-width: 250px; }
+.permission-table th small { display: block; color: var(--ink-soft); font-weight: 400; }
+.permission-table form { margin: 0; }
+.audit-filter { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; padding: 20px 0; border-top: 1px solid var(--line); }
+.audit-filter label { display: grid; gap: 5px; font-weight: 600; min-width: 170px; }
+.audit-table td { vertical-align: top; }
+.audit-table td:last-child { min-width: 220px; }
 /* Customer history */
 .customer-history-page { max-width: 1250px; margin: 0 auto; }
 .customer-history-summary { margin: 16px 0 34px; padding: 18px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
