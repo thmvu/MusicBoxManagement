@@ -17,6 +17,7 @@
     var canUsers = false;
     var canPermissions = false;
     var canAudit = false;
+    var canReports = false;
     if (signedIn)
     {
         using (var db = new ApplicationDbContext())
@@ -36,6 +37,7 @@
             canUsers = permissions.HasPermission(userId, "User.Manage");
             canPermissions = permissions.HasPermission(userId, "Permission.Manage");
             canAudit = permissions.HasPermission(userId, "Audit.View");
+            canReports = permissions.HasPermission(userId, "Report.View");
         }
     }
     var operationsActive = controller == "Dashboard" || controller == "Calendar" || controller == "Reservations" || controller == "RoomSessions" || controller == "Orders" || controller == "Checkout" || controller == "Invoices" || controller == "Customers";
@@ -48,7 +50,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewBag.Title | Music Box</title>
     @Styles.Render("~/Content/css")
-    <link href="@Url.Content("~/Content/Site.css")?v=20260929-1" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/Site.css")?v=20260929-2" rel="stylesheet" />
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>
@@ -100,6 +102,10 @@
                                     @if (canAudit) { <li>@Html.ActionLink("Nhật ký thao tác", "Index", "AuditLogs", null, new { @class = "dropdown-item" })</li> }
                                 </ul>
                             </li>
+                        }
+                        @if (canReports)
+                        {
+                            <li class="nav-item">@Html.ActionLink("Báo cáo", "Index", "Reports", null, new { @class = "nav-link" + (controller == "Reports" ? " active" : "") })</li>
                         }
                     </ul>
                     @Html.Partial("_LoginPartial")

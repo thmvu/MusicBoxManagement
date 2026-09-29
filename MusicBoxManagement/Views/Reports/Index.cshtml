@@ -1,0 +1,89 @@
+@using System
+@using MusicBoxManagement.Models
+@model ReportFilterViewModel
+@{
+    ViewBag.Title = "Báo cáo";
+    var tabs = new[] {
+        new { Kind = ReportKinds.RevenueDay, Label = "Doanh thu ngày" },
+        new { Kind = ReportKinds.RevenueMonth, Label = "Doanh thu tháng" },
+        new { Kind = ReportKinds.RevenueRoomType, Label = "Theo loại phòng" },
+        new { Kind = ReportKinds.RoomUsage, Label = "Lượt phòng" },
+        new { Kind = ReportKinds.Utilization, Label = "Tỷ lệ sử dụng" },
+        new { Kind = ReportKinds.BookingStatus, Label = "Đặt phòng" },
+        new { Kind = ReportKinds.ServiceSales, Label = "Doanh thu món" }
+    };
+    var roomReport = Model.Kind == ReportKinds.RoomUsage || Model.Kind == ReportKinds.Utilization;
+}
+<main class="py-4 reports-page">
+    <header class="page-heading">
+        <div>
+            <p class="page-context">Music Box / Quản lý</p>
+            <h1>Báo cáo</h1>
+            <p class="page-subtitle">Số liệu theo giờ Việt Nam và dữ liệu đã chốt trong hệ thống.</p>
+        </div>
+    </header>
+    <nav class="report-tabs" aria-label="Loại báo cáo">
+        @foreach (var tab in tabs)
+        {
+            @Html.ActionLink(tab.Label, "Index", new { Kind = tab.Kind, Model.FromDate, Model.ToDate,
+                Model.RoomTypeCode, Model.RoomId, Model.ServiceId },
+                new { @class = Model.Kind == tab.Kind ? "active" : "" })
+        }
+    </nav>
+    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+    @using (Html.BeginForm("Index", "Reports", FormMethod.Get, new { @class = "report-filter" }))
+    {
+        <input type="hidden" name="Kind" value="@Model.Kind" />
+        <label>Từ ngày<input type="date" name="FromDate" value="@Model.FromDate" class="form-control" required /></label>
+        <label>Đến ngày<input type="date" name="ToDate" value="@Model.ToDate" class="form-control" required /></label>
+        if (Model.Kind == ReportKinds.RevenueRoomType)
+        {
+            <label>Loại phòng<select name="RoomTypeCode" class="form-select"><option value="">Tất cả</option>
+                @foreach (var type in Model.RoomTypes) { <option value="@type.Code" @(type.Code == Model.RoomTypeCode ? "selected" : "")>@type.Code · @type.Name</option> }
+            </select></label>
+        }
+        if (roomReport)
+        {
+            <label>Phòng<select name="RoomId" class="form-select"><option value="">Tất cả</option>
+                @foreach (var room in Model.Rooms) { <option value="@room.RoomId" @(room.RoomId == Model.RoomId ? "selected" : "")>@room.RoomCode</option> }
+            </select></label>
+        }
+        if (Model.Kind == ReportKinds.ServiceSales)
+        {
+            <label>Món<select name="ServiceId" class="form-select"><option value="">Tất cả</option>
+                @foreach (var service in Model.Services) { <option value="@service.ServiceId" @(service.ServiceId == Model.ServiceId ? "selected" : "")>@service.Name@(service.IsActive ? "" : " · ngừng bán")</option> }
+            </select></label>
+        }
+        <button type="submit" class="btn btn-primary">Xem báo cáo</button>
+    }
+    @if (Model.Data != null)
+    {
+        <section class="report-results">
+            <div class="report-heading">
+                <div><h2>@Model.Data.Title</h2><p>@Model.Data.FilterDescription</p><p>@Model.Data.TimeBasis</p></div>
+                @if (Model.CanExport)
+                {
+                    @Html.ActionLink("Xuất Excel", "Export", new { Model.Kind, Model.FromDate, Model.ToDate,
+                        Model.RoomTypeCode, Model.RoomId, Model.ServiceId }, new { @class = "btn btn-outline-primary" })
+                }
+            </div>
+            <p class="report-updated">Tạo lúc @Model.Data.GeneratedAt.ToOffset(TimeSpan.FromHours(7)).ToString("HH:mm dd/MM/yyyy")</p>
+            <div class="table-responsive">
+                <table class="table report-table">
+                    <thead><tr>@foreach (var header in Model.Data.Headers) { <th>@header</th> }</tr></thead>
+                    <tbody>
+                        @foreach (var row in Model.Data.Rows)
+                        {
+                            <tr>@foreach (var cell in row.Cells) { <td class="@(cell.Number.HasValue ? "text-end" : "")">@cell.Display</td> }</tr>
+                        }
+                        @if (Model.Data.Total != null)
+                        {
+                            <tr class="report-total">@foreach (var cell in Model.Data.Total.Cells) { <td class="@(cell.Number.HasValue ? "text-end" : "")">@cell.Display</td> }</tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (Model.Data.Rows.Count == 0) { <p>Không có dữ liệu trong khoảng đã chọn.</p> }
+        </section>
+    }
+</main>

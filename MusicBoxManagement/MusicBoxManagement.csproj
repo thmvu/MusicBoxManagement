@@ -55,6 +55,7 @@
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Web" />
@@ -182,6 +183,9 @@
     <Compile Include="Authorization\PermissionAuthorizeAttribute.cs" />
     <Compile Include="Services\PermissionService.cs" />
     <Compile Include="Services\PermissionMatrixService.cs" />
+    <Compile Include="Services\ReportMath.cs" />
+    <Compile Include="Services\ReportService.cs" />
+    <Compile Include="Services\ReportExcelWriter.cs" />
     <Compile Include="Services\UserManagementService.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\DashboardController.cs" />
@@ -191,6 +195,7 @@
     <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Controllers\PermissionsController.cs" />
     <Compile Include="Controllers\AuditLogsController.cs" />
+    <Compile Include="Controllers\ReportsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -200,6 +205,7 @@
     <Compile Include="Models\CustomerViewModels.cs" />
     <Compile Include="Models\CustomerHistoryViewModels.cs" />
     <Compile Include="Models\PermissionAdminViewModels.cs" />
+    <Compile Include="Models\ReportViewModels.cs" />
     <Compile Include="Models\PublicRoomViewModel.cs" />
     <Compile Include="Models\GuestBookingViewModels.cs" />
     <Compile Include="Models\ReservationViewModels.cs" />
@@ -380,6 +386,7 @@
     <Content Include="Views\Users\ResetPassword.cshtml" />
     <Content Include="Views\Permissions\Index.cshtml" />
     <Content Include="Views\AuditLogs\Index.cshtml" />
+    <Content Include="Views\Reports\Index.cshtml" />
     <Content Include="Views\RoomTypes\Index.cshtml" />
     <Content Include="Views\RoomTypes\Edit.cshtml" />
     <Content Include="Views\Rooms\Index.cshtml" />
